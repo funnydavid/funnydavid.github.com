@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>Python进阶（一） | Narrater</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这周听了三节Python进阶课程，有十几年的老程序给你讲课传授一门语言的进阶知识，也许这是在大公司才能享受到的福利。虽然接触使用Python也有三四年时间了，但是从课程中还是学习到不少东西，掌握了新技巧的用法，明白了老知识背后的原因。下载了课件，做了笔记，但我还是希望用讲述的方式把它们表现出来，为未来的自己，也给需要的读者。整体以大雄的课程为蓝本，结合我在开发中的一些自己的体会和想法。
+1. 写操">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python进阶（一）">
+<meta property="og:url" content="http://inarrater.com/2016/06/30/pythonadvance1/index.html">
+<meta property="og:site_name" content="Narrater">
+<meta property="og:description" content="这周听了三节Python进阶课程，有十几年的老程序给你讲课传授一门语言的进阶知识，也许这是在大公司才能享受到的福利。虽然接触使用Python也有三四年时间了，但是从课程中还是学习到不少东西，掌握了新技巧的用法，明白了老知识背后的原因。下载了课件，做了笔记，但我还是希望用讲述的方式把它们表现出来，为未来的自己，也给需要的读者。整体以大雄的课程为蓝本，结合我在开发中的一些自己的体会和想法。
+1. 写操">
+<meta property="og:updated_time" content="2016-06-30T15:10:20.915Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python进阶（一）">
+<meta name="twitter:description" content="这周听了三节Python进阶课程，有十几年的老程序给你讲课传授一门语言的进阶知识，也许这是在大公司才能享受到的福利。虽然接触使用Python也有三四年时间了，但是从课程中还是学习到不少东西，掌握了新技巧的用法，明白了老知识背后的原因。下载了课件，做了笔记，但我还是希望用讲述的方式把它们表现出来，为未来的自己，也给需要的读者。整体以大雄的课程为蓝本，结合我在开发中的一些自己的体会和想法。
+1. 写操">
+  
+    <link rel="alternative" href="/atom.xml" title="Narrater" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">董夕</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">讲述，而非记录</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+					        
+								<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+					        
+								<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/开发/" style="font-size: 10px;">开发</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">程序员，对故事有爱，想要有趣的人生。</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">董夕</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+			
+				<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+			</div>
+			<hgroup>
+			  <h1 class="header-author">董夕</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">讲述，而非记录</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+			        
+						<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap"><article id="post-pythonadvance1" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/06/30/pythonadvance1/" class="article-date">
+  	<time datetime="2016-06-30T15:01:26.000Z" itemprop="datePublished">2016-06-30</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Python进阶（一）
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这周听了三节Python进阶课程，有十几年的老程序给你讲课传授一门语言的进阶知识，也许这是在大公司才能享受到的福利。虽然接触使用Python也有三四年时间了，但是从课程中还是学习到不少东西，掌握了新技巧的用法，明白了老知识背后的原因。<br>下载了课件，做了笔记，但我还是希望用讲述的方式把它们表现出来，为未来的自己，也给需要的读者。整体以大雄的课程为蓝本，结合我在开发中的一些自己的体会和想法。</p>
+<h2 id="1-写操作对于命名空间的影响"><a href="#1-写操作对于命名空间的影响" class="headerlink" title="1. 写操作对于命名空间的影响"></a>1. 写操作对于命名空间的影响</h2><p>首先来看这样一段代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(processed)</span>:</span></span><br><span class="line">	value = math.pi</span><br><span class="line"></span><br><span class="line">	<span class="comment"># The other programmer add logic here.</span></span><br><span class="line">	<span class="keyword">if</span> processed:</span><br><span class="line">		<span class="keyword">import</span> math</span><br><span class="line">		value = math.sin(value)</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">print</span> value</span><br><span class="line">	</span><br><span class="line">foo(<span class="keyword">True</span>)</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>思考</strong>：你觉得这段代码有没有什么问题，它的运行结果是什么？</p>
+</blockquote>
+<a id="more"></a>
+<p>首先，我个人不喜欢在代码中进行<code>import math</code>的操作的方式，通常会建议把这一操作放置到文件头部，这主要处于<strong>性能</strong>的考虑——虽然已经import过的模块不会重复执行加载过程，但毕竟有一次从sys.modules中查询的过程。这种操作在tick等高频执行的逻辑中尤其要去避免。</p>
+<p>但这并不是这段代码的问题所在的重点，当你尝试执行这段代码的时候，会输出如下的错误：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"C:\Users\David-PC\Desktop\Advanced Course on Python 2016\t019.py"</span>, line <span class="number">13</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    foo(<span class="keyword">True</span>)</span><br><span class="line">  File <span class="string">"C:\Users\David-PC\Desktop\Advanced Course on Python 2016\t019.py"</span>, line <span class="number">4</span>, <span class="keyword">in</span> foo</span><br><span class="line">    value = math.pi</span><br><span class="line">UnboundLocalError: local variable <span class="string">'math'</span> referenced before assignment</span><br></pre></td></tr></table></figure></p>
+<p>在赋值之前被引用了，这似乎是在文件头部进行import的锅。这个例子稍微有点复杂，我们尝试写一段有点近似但是更简单的例子，在之前编码过程中我就遇到过类似的情况：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">value = <span class="number">0</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">if</span> value &gt; <span class="number">0</span>:</span><br><span class="line">		value = <span class="number">1</span></span><br><span class="line">		<span class="keyword">print</span> value</span><br><span class="line">foo()</span><br></pre></td></tr></table></figure></p>
+<p>同样会提示value在被赋值之前被使用了，让这段代码正常运作很简单，只需要把<code>global value</code>放在foo函数定义的第一行就可以了。</p>
+<blockquote>
+<p><strong>思考</strong>: 为什么在foo函数内部，无法访问其外部的value变量？</p>
+</blockquote>
+<p>如果你把<code>value = 1</code>这一行代码注释掉，这段代码就可以正常运行，看上去对于value的赋值操作导致了我们无法正常访问一个外部的变量，无论这个赋值操作在访问操作之前还是之后。</p>
+<blockquote>
+<p><strong>Write operation</strong> will shield the locating outside the current name space, which is determined at <strong>compile time</strong>.</p>
+</blockquote>
+<p>简单来说，命名空间内部如果有对变量的写操作，这个变量在这个命名空间中就会被认为是<strong>local</strong>的，你的代码就不能在赋值之前使用它，而且检查过程是在<strong>编译</strong>的时候。使用<strong>global</strong>关键字可以改变这一行为。<br>那我们回到第一段代码，为什么imort的一个模块也无法正常被使用呢？<br>如果理解import的过程，答案就很简单了——<strong>import其实就是一个赋值的过程</strong>。</p>
+<blockquote>
+<p><strong>总结</strong>：之前我自认为Python的命名空间很容易理解，对于全局变量或者说upvalue的访问却通常不去注意，有时候觉得不需要写global来标识也可以访问得到，有时候又会遇到语法错误的提示，其实一直没有理解清楚是什么规则导致这样的结果。<br>写操作对于命名空间的影响解答了这一问题，让我看到自己之前“<strong>面对出错提示编程</strong>”的愚蠢和懒惰。。。</p>
+</blockquote>
+<h2 id="2-循环引用"><a href="#2-循环引用" class="headerlink" title="2. 循环引用"></a>2. 循环引用</h2><p>Python的垃圾回收（GC）结合了引用计数（Reference Count）、对象池（Object Pool）、标记清除(Mark and Sweep)、分代回收（Generational Collecting）这几种技术，具体的GC实现放在后面来说，我们先看代码中存在循环引用的情况。<br>游戏开发中设计出循环引用非常地简单，比如游戏中常用的实体（Entity）结构：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EntityManager</span><span class="params">(object)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">()</span>:</span></span><br><span class="line">		self.__entities = &#123;&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">add_entity</span><span class="params">(eid)</span>:</span></span><br><span class="line">		<span class="comment">#Some process code.</span></span><br><span class="line">		self.__entities[eid] = Entity(id, self)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">get_entity</span><span class="params">(eid)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> self.__entities.get(eid, <span class="keyword">None</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Entity</span><span class="params">(object)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(eid, mgr)</span>:</span></span><br><span class="line">		self.eid = _id</span><br><span class="line">		self.mgr = mgr</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">attact</span><span class="params">(skill_id, target_id)</span>:</span></span><br><span class="line">		target = self.mgr.get_entity(target_id)</span><br><span class="line">		<span class="comment">#attack the target</span></span><br><span class="line">		<span class="comment">#...</span></span><br></pre></td></tr></table></figure></p>
+<p>很明显，这里<code>EntityManager</code>中的<code>__entities</code>属性引用了它所控制的所有对象，而对于一个游戏实体，有时候需要能够获取别的实体对象，那么最简单的方法就是把<code>EntityManager</code>的自己传递给创建出来的实体，让其保留一个引用，这样在执行攻击这样的函数的时候，就可以很方便地获取到想要拿到的数据。<br><code>EntityManager</code>中的<code>__entities</code>属性引用了<code>Entity</code>对象，<code>Entity</code>对象身上的mgr属性又引用了<code>EntityManager</code>对象，这就存在循环引用。<br>有的人也许会说，有循环引用了，so what? 首先我可以从逻辑上保证释放的时候都会把环解开，这样就可以正常释放内存了。再者，本身Python自己就提供了垃圾回收的方式，它可以帮我清理。<br>对于这种想法，作为一个游戏开发者，我表示——<strong>呵呵</strong><br>我们看一个在游戏开发中常见的循环引用的例子，有些情况下写了循环引用而不自知（实例代码直接使用大雄课程中的）。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Animation</span><span class="params">(object)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, callback)</span>:</span></span><br><span class="line">		self._callback = callback</span><br><span class="line">		</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Entity</span><span class="params">(object)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">		self._animation = Animation(self._complete)</span><br><span class="line">		</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">_complete</span><span class="params">(self)</span>:</span></span><br><span class="line">		<span class="keyword">pass</span></span><br><span class="line">		</span><br><span class="line">e = Entity()</span><br><span class="line"><span class="keyword">print</span> e._animation._callback.im_self <span class="keyword">is</span> e</span><br></pre></td></tr></table></figure></p>
+<p>最终print输出的结果是True，也解释了这段逻辑中的循环引用所在。<br>对于多人协作来实现的大型项目来说，逻辑上保证代码中没有环存在是几乎不可能的事情，况且即使你代码逻辑上可以正确释放，偶发的traceback就可能让你接环的逻辑没有被执行到，从而导致了循环引用对象的无法立即释放。</p>
+<blockquote>
+<p>Python的循环引用处理，如果一个对象的引用计数为0的时候，该对象会<strong>立即</strong>被释放掉。</p>
+</blockquote>
+<p>然后Python的GC是很耗的一个过程，会造成CPU瞬间的峰值等问题，网易有项目就完全自己实现了一套分片多线程的GC机制来替换掉Python原生的GC。<br>大量循环引用的存在会导致更慢更加频繁的GC，也会导致内存的波动。</p>
+<blockquote>
+<p><strong>解决方法</strong>：对于<code>EntityManager</code>的例子，使用weakref来解决；对于callback的例子，尽量避免使用对象的方法来作为一个回调。</p>
+<p><strong>总结</strong>：对于简单的系统来说，不需要关心循环引用的问题，交给Python的GC就够了，但是需要长时间运行，对于CPU波动敏感的系统，需要关注循环引用的影响，尽量去规避。</p>
+</blockquote>
+<p>PS：刚刚开始使用MarkDown，一些语法还不熟悉，但是用它写起这种包含代码的文章来说还是非常舒服的，这篇开头让我体会到了这一点。所以说，只有程序员这种geek生物才会喜欢Hexo等基于MarkDown需要generate成静态网页的博客。。。</p>
+<p>2016年6月30日于杭州家中</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/06/29/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">讲述者源始</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="pythonadvance1" data-title="Python进阶（一）" data-url="http://inarrater.com/2016/06/30/pythonadvance1/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"inarrater"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2016 董夕
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+</body>
+</html>

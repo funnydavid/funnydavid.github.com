@@ -4,17 +4,21 @@
   <meta charset="utf-8">
   
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
-  <title>Narrater</title>
+  <title>讲述者源始 | Narrater</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Narrater">
-<meta property="og:url" content="http://inarrater.com/index.html">
+  <meta name="description" content="从大学时代开始，尝试各种形形色色的博客，从网易博客到新浪博客，再到Lofter、简书，甚至写在纸质本子上的手账，断断续续记录，断断续续写作。有些尘封在过往的时光中，布满灰尘，连自己都不再记得内容和样子；有些依然偶尔去填一些文字或者记上几句感慨，不关心过往路人的喜好或者评价。
+零散的过去分布在网落的各个角落，每一个都是曾经的开始，现在却已无法把它们找回。但坚持记录了两个多月的手账让我看到了一些不同的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="讲述者源始">
+<meta property="og:url" content="http://inarrater.com/2016/06/29/hello-world/index.html">
 <meta property="og:site_name" content="Narrater">
-<meta property="og:description">
+<meta property="og:description" content="从大学时代开始，尝试各种形形色色的博客，从网易博客到新浪博客，再到Lofter、简书，甚至写在纸质本子上的手账，断断续续记录，断断续续写作。有些尘封在过往的时光中，布满灰尘，连自己都不再记得内容和样子；有些依然偶尔去填一些文字或者记上几句感慨，不关心过往路人的喜好或者评价。
+零散的过去分布在网落的各个角落，每一个都是曾经的开始，现在却已无法把它们找回。但坚持记录了两个多月的手账让我看到了一些不同的">
+<meta property="og:updated_time" content="2016-06-30T15:08:30.084Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Narrater">
-<meta name="twitter:description">
+<meta name="twitter:title" content="讲述者源始">
+<meta name="twitter:description" content="从大学时代开始，尝试各种形形色色的博客，从网易博客到新浪博客，再到Lofter、简书，甚至写在纸质本子上的手账，断断续续记录，断断续续写作。有些尘封在过往的时光中，布满灰尘，连自己都不再记得内容和样子；有些依然偶尔去填一些文字或者记上几句感慨，不关心过往路人的喜好或者评价。
+零散的过去分布在网落的各个角落，每一个都是曾经的开始，现在却已无法把它们找回。但坚持记录了两个多月的手账让我看到了一些不同的">
   
     <link rel="alternative" href="/atom.xml" title="Narrater" type="application/atom+xml">
   
@@ -171,73 +175,7 @@
 	</div>
 </nav>
 
-      <div class="body-wrap">
-  
-    <article id="post-pythonadvance1" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/06/30/pythonadvance1/" class="article-date">
-  	<time datetime="2016-06-30T15:01:26.000Z" itemprop="datePublished">2016-06-30</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/06/30/pythonadvance1/">Python进阶（一）</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这周听了三节Python进阶课程，有十几年的老程序给你讲课传授一门语言的进阶知识，也许这是在大公司才能享受到的福利。虽然接触使用Python也有三四年时间了，但是从课程中还是学习到不少东西，掌握了新技巧的用法，明白了老知识背后的原因。<br>下载了课件，做了笔记，但我还是希望用讲述的方式把它们表现出来，为未来的自己，也给需要的读者。整体以大雄的课程为蓝本，结合我在开发中的一些自己的体会和想法。</p>
-<h2 id="1-写操作对于命名空间的影响"><a href="#1-写操作对于命名空间的影响" class="headerlink" title="1. 写操作对于命名空间的影响"></a>1. 写操作对于命名空间的影响</h2><p>首先来看这样一段代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(processed)</span>:</span></span><br><span class="line">	value = math.pi</span><br><span class="line"></span><br><span class="line">	<span class="comment"># The other programmer add logic here.</span></span><br><span class="line">	<span class="keyword">if</span> processed:</span><br><span class="line">		<span class="keyword">import</span> math</span><br><span class="line">		value = math.sin(value)</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">print</span> value</span><br><span class="line">	</span><br><span class="line">foo(<span class="keyword">True</span>)</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p><strong>思考</strong>：你觉得这段代码有没有什么问题，它的运行结果是什么？</p>
-</blockquote>
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a  href="/2016/06/30/pythonadvance1/#more">more >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
       <a href="/2016/06/29/hello-world/" class="article-date">
@@ -253,12 +191,23 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/06/29/hello-world/">讲述者源始</a>
+    <h1 class="article-title" itemprop="name">
+      讲述者源始
     </h1>
   
 
       </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/随笔/">随笔</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
       
     
     <div class="article-entry" itemprop="articleBody">
@@ -273,20 +222,23 @@
       
     </div>
     
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/随笔/">随笔</a></li></ul>
-	</div>
-
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
   </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/06/30/pythonadvance1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          Python进阶（一）
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
   
 </article>
 
@@ -295,11 +247,28 @@
 
 
 
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="hello-world" data-title="讲述者源始" data-url="http://inarrater.com/2016/06/29/hello-world/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"inarrater"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
 
 
 
-  
-  
+
 </div>
       <footer id="footer">
   <div class="outer">
@@ -323,8 +292,8 @@
 		fancybox: true,
 		mathjax: true,
 		animate: true,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
