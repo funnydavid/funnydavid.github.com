@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="Narrater">
 <meta property="og:description" content="这周听了三节Python进阶课程，有十几年的老程序给你讲课传授一门语言的进阶知识，也许这是在大公司才能享受到的福利。虽然接触使用Python也有三四年时间了，但是从课程中还是学习到不少东西，掌握了新技巧的用法，明白了老知识背后的原因。下载了课件，做了笔记，但我还是希望用讲述的方式把它们表现出来，为未来的自己，也给需要的读者。整体以大雄的课程为蓝本，结合我在开发中的一些自己的体会和想法。
 1. 写操">
-<meta property="og:updated_time" content="2016-06-30T15:10:20.915Z">
+<meta property="og:updated_time" content="2016-06-30T15:37:31.185Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python进阶（一）">
 <meta name="twitter:description" content="这周听了三节Python进阶课程，有十几年的老程序给你讲课传授一门语言的进阶知识，也许这是在大公司才能享受到的福利。虽然接触使用Python也有三四年时间了，但是从课程中还是学习到不少东西，掌握了新技巧的用法，明白了老知识背后的原因。下载了课件，做了笔记，但我还是希望用讲述的方式把它们表现出来，为未来的自己，也给需要的读者。整体以大雄的课程为蓝本，结合我在开发中的一些自己的体会和想法。
@@ -243,8 +243,9 @@
 <blockquote>
 <p><strong>解决方法</strong>：对于<code>EntityManager</code>的例子，使用weakref来解决；对于callback的例子，尽量避免使用对象的方法来作为一个回调。</p>
 <p><strong>总结</strong>：对于简单的系统来说，不需要关心循环引用的问题，交给Python的GC就够了，但是需要长时间运行，对于CPU波动敏感的系统，需要关注循环引用的影响，尽量去规避。</p>
+<p><strong>题外话</strong>：在我们现在的项目中，EntityManager的例子使用了<strong>单例模式</strong>来解除循环引用，这是一种常用的方法，但是单例模式也不是“<strong>银弹</strong>”。这种设计模式在限制对象实例化的同时，也提供了全局访问的接口，意味着这个单例对象变成了一个全局对象，于是代码中充满了不考虑耦合性的滥用。在客户端代码中，这些使用全局单例的逻辑没有问题，因为客户端只需要一个EntityManager就可以管理所有的游戏实体，也不会存在其他的并行环境，而当我们需要进行服务端开发的时候，同一份代码拿到服务端就变成了灾难——对于服务端来说，可能会存在很多EntityManager管理不同情境下的游戏实体，单例的模式不再可用，之前任意访问EntityManager的地方都需要经过迭代和整理才可以正常执行。</p>
 </blockquote>
-<p>PS：刚刚开始使用MarkDown，一些语法还不熟悉，但是用它写起这种包含代码的文章来说还是非常舒服的，这篇开头让我体会到了这一点。所以说，只有程序员这种geek生物才会喜欢Hexo等基于MarkDown需要generate成静态网页的博客。。。</p>
+<p>PPS：刚刚开始使用MarkDown，一些语法还不熟悉，但是用它写起这种包含代码的文章来说还是非常舒服的，这篇开头让我体会到了这一点。所以说，只有程序员这种geek生物才会喜欢Hexo等基于MarkDown需要generate成静态网页的博客。。。</p>
 <p>2016年6月30日于杭州家中</p>
 
       
