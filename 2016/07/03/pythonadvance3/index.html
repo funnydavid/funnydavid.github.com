@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>Python进阶(三) | Narrater</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="4. Bound Method和Unbound Method
+声明: 本系列文章中的所有内容都是基于Python 2.x版本的，原因是网易绝大部分项目都是在用2.x版本，笔者参与过的项目无论端游还是手游都是基于Python 2.7.x版本进行的开发，因此无论经验还是课程适用性，都是在2.x范围内。在Python 3.x中，unbound method的概念已经被取消了。
+
+上一小节说了，Bound">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python进阶(三)">
+<meta property="og:url" content="http://inarrater.com/2016/07/03/pythonadvance3/index.html">
+<meta property="og:site_name" content="Narrater">
+<meta property="og:description" content="4. Bound Method和Unbound Method
+声明: 本系列文章中的所有内容都是基于Python 2.x版本的，原因是网易绝大部分项目都是在用2.x版本，笔者参与过的项目无论端游还是手游都是基于Python 2.7.x版本进行的开发，因此无论经验还是课程适用性，都是在2.x范围内。在Python 3.x中，unbound method的概念已经被取消了。
+
+上一小节说了，Bound">
+<meta property="og:updated_time" content="2016-07-02T20:58:26.180Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python进阶(三)">
+<meta name="twitter:description" content="4. Bound Method和Unbound Method
+声明: 本系列文章中的所有内容都是基于Python 2.x版本的，原因是网易绝大部分项目都是在用2.x版本，笔者参与过的项目无论端游还是手游都是基于Python 2.7.x版本进行的开发，因此无论经验还是课程适用性，都是在2.x范围内。在Python 3.x中，unbound method的概念已经被取消了。
+
+上一小节说了，Bound">
+  
+    <link rel="alternative" href="/atom.xml" title="Narrater" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">董夕</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">讲述，而非记录</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+					        
+								<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+					        
+								<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/Python/" style="font-size: 20px;">Python</a> <a href="/tags/开发/" style="font-size: 20px;">开发</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">程序员，对故事有爱，想要有趣的人生。</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">董夕</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+			
+				<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+			</div>
+			<hgroup>
+			  <h1 class="header-author">董夕</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">讲述，而非记录</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+			        
+						<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap"><article id="post-pythonadvance3" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/07/03/pythonadvance3/" class="article-date">
+  	<time datetime="2016-07-02T20:55:21.000Z" itemprop="datePublished">2016-07-03</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Python进阶(三)
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="4-Bound-Method和Unbound-Method"><a href="#4-Bound-Method和Unbound-Method" class="headerlink" title="4. Bound Method和Unbound Method"></a>4. Bound Method和Unbound Method</h2><blockquote>
+<p><strong>声明</strong>: 本系列文章中的所有内容都是基于Python 2.x版本的，原因是网易绝大部分项目都是在用2.x版本，笔者参与过的项目无论端游还是手游都是基于Python 2.7.x版本进行的开发，因此无论经验还是课程适用性，都是在2.x范围内。在Python 3.x中，unbound method的概念已经被取消了。</p>
+</blockquote>
+<p>上一小节说了，Bound Method和Unbound Method这部分是我参与大雄的课程中最喜欢的一部分，因为它让我窥探到了Python语言动态特性的一角，也加深了我对于平时在用的一种优化方法的认识。这部分会比较长，我们分几个小节来细说。</p>
+<h3 id="4-1-基本概念"><a href="#4-1-基本概念" class="headerlink" title="4.1 基本概念"></a>4.1 基本概念</h3><p>先从代码来看，定义一个简单的类A：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span><span class="params">(object)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span></span><br><span class="line">		<span class="keyword">pass</span></span><br><span class="line">		</span><br><span class="line">a = A()</span><br></pre></td></tr></table></figure></p>
+<p>很简单，我们来打印一些信息来看看：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> A.foo		<span class="comment"># &lt;unbound method A.foo&gt;</span></span><br><span class="line"><span class="keyword">print</span> a.foo		<span class="comment"># &lt;bound method A.foo of &lt;__main__.A object at 0x023DE070&gt;&gt;</span></span><br><span class="line"><span class="keyword">print</span> A.foo == a.foo <span class="comment"># False</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> a, id(a)	<span class="comment">#&lt;__main__.A object at 0x0235E070&gt; 37085296</span></span><br><span class="line"><span class="keyword">print</span> A.foo.im_self	<span class="comment"># None</span></span><br><span class="line"><span class="keyword">print</span> a.foo.im_self	<span class="comment"># &lt;__main__.A object at 0x0241E070&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>为了方便对比和理解我把输出的结果放在了对应的print之后，首先输出两个<code>A.foo</code>和<code>a.foo</code>，看到了他们分别是两个对象，一个叫做unbound method，一个叫做bound method，很明显他们是两个不同的对象。这跟我从C++角度来理解Python的方法（Method）就有点不同了——通常静态语言中，面向对象的设计，把方法的定义放在类上，对象通过一定的机制（比如虚函数表等）查找到对应的函数地址来进行调用，那按这样推理，A.foo和a.foo应该是一个东西才对。事实证明Python语言不是这样的。</p>
+<a id="more"></a>
+<p>继续看后面的输出代码，我们打印了方法的im_self属性来进行查看，发现A.foo的该属性为None，a.foo.im_self的该属性为a。<br>那么概念上的答案就很明显了，unbound method和bound method的区别在于是否绑定了im_self属性。更加准确的是<a href="https://docs.python.org/2/howto/descriptor.html" target="_blank" rel="external">Python官方文档</a>的描述：</p>
+<blockquote>
+<p>While they could have been implemented that way, the actual C implementation of PyMethod_Type in Objects/classobject.c is a single object with two different representations depending on whether the im_self field is set or is NULL (the C equivalent of None).</p>
+</blockquote>
+<p>如果你直接调用<code>A.foo()</code>这种未绑定的方法，就会有这样的提示：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TypeError: unbound method foo() must be called <span class="keyword">with</span> Foo instance <span class="keyword">as</span> first argument (got nothing instead)</span><br></pre></td></tr></table></figure></p>
+<p>而且可以通过A.foo(a)这种方式来进行手动的绑定，这也是早期Python的一种常用调用方式。到这里可能还有很多疑问，在对基本概念进行明确之后，我们继续往下看。</p>
+<blockquote>
+<p><strong>思考</strong>：对象实例a的foo属性存在在哪里？</p>
+</blockquote>
+<h3 id="4-2-动态创建"><a href="#4-2-动态创建" class="headerlink" title="4.2 动态创建"></a>4.2 动态创建</h3><p>我们来做一些分析工作：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> <span class="number">1</span>, id(a.foo)	<span class="comment"># 1 37674480</span></span><br><span class="line"><span class="keyword">print</span> <span class="number">2</span>, id(a.foo)	<span class="comment"># 2 37674480</span></span><br><span class="line"><span class="comment"># print a.__dict__	# &#123;&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>多执行几次a.foo来获取函数，发现他们的id是一样的，上面执行都是38002160，这很正常，他们看上去就应当是同一个对象。我们尝试打印a的<code>__dict__</code>属性来看，结果是空的，也就是说foo这个对象不存在在a对象身上，那它存在在哪儿呢？对应的类A身上？我们刚才打印的a.foo和A.foo并不是同一个对象啊。<br>好，然后我们来做一点奇怪的事情：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> <span class="number">1</span>, id(a.foo)	<span class="comment"># 1 37674480</span></span><br><span class="line"><span class="keyword">print</span> <span class="number">2</span>, id(a.foo)	<span class="comment"># 2 37674480</span></span><br><span class="line">m1 = a.foo</span><br><span class="line">m2 = a.foo</span><br><span class="line"><span class="keyword">print</span> <span class="number">3</span>, id(m1)		<span class="comment"># 3 37674480</span></span><br><span class="line"><span class="keyword">print</span> <span class="number">4</span>, id(m2)		<span class="comment"># 4 37594296</span></span><br></pre></td></tr></table></figure></p>
+<p>什…什么鬼？！<br>我使用两个变量，都获取a.foo这个bound method对象，然后打印他们的id，结果m1和m2的id不同，<strong>意味着他们两个不是同一个Python对象</strong>！</p>
+<blockquote>
+<p><strong>思考</strong>：对象身上的方法对象，分别赋值给两个变量，结果发现它们不是同一个对象，但是之前直接执行a.foo来进行id的输出，他们的id又是一致的，这是什么神奇的逻辑？</p>
+</blockquote>
+<p>好，在揭晓答案之前，我们再看一些分析代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> <span class="number">1</span>, id(a.foo)	<span class="comment"># 1 32824816</span></span><br><span class="line"><span class="keyword">print</span> <span class="number">2</span>, id(a.foo)	<span class="comment"># 2 32824816</span></span><br><span class="line"></span><br><span class="line">m1 = a.foo</span><br><span class="line">m2 = a.foo</span><br><span class="line"><span class="keyword">print</span> <span class="number">3</span>, id(m1)		<span class="comment"># 3 32824816</span></span><br><span class="line"><span class="keyword">print</span> <span class="number">4</span>, id(m2)		<span class="comment"># 4 32744632</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="number">5</span>, id(a.foo)	<span class="comment"># 5 32824896</span></span><br><span class="line"></span><br><span class="line">m2 = <span class="keyword">None</span></span><br><span class="line">m1 = <span class="keyword">None</span></span><br><span class="line"><span class="keyword">print</span> <span class="number">6</span>, id(a.foo)	<span class="comment"># 6 32824816</span></span><br></pre></td></tr></table></figure></p>
+<p>由于多次执行，id值跟上次执行的不在相同，我们只在本次执行的代码输出中进行对比。在输出m1和m2的id之后，我们再次输出<code>a.foo</code>的id，发现它改变了。=_=，好吧，我已经见怪不怪了，当我删除了m2和m1两个变量之后，再次查看<code>id( a.foo )</code>，它又变回了原来的值32824816。。。<br>如果你还没有看出什么端倪，那可能会有种被逼疯了的感觉。<br>但是，通过这个id的值来看，有没有中似乎什么对象被复用了的感觉？<br>Python是有小对象缓存池机制的，对于int、float，string甚至tuple、list都会有不同的对象缓存机制，那这里<code>a.foo</code>返回的对象是被缓存过的，才会出现重复的id。<br>本来在印象中，应当是一个对象就可以搞定的事情，为什么有多个对象，还要有缓存池？那是因为——</p>
+<blockquote>
+<p>Bound &amp; unbound methods are almost temporary instance objects.</p>
+</blockquote>
+<p>是的，无论bound还是unbound method，几乎都是临时的实例对象。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">m1 = A.foo</span><br><span class="line">m2 = A.foo</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="number">7</span>, id(m1)		<span class="comment"># 7 36625904</span></span><br><span class="line"><span class="keyword">print</span> <span class="number">8</span>, id(m2)		<span class="comment"># 8 36545720</span></span><br></pre></td></tr></table></figure></p>
+<p>它们这些对象在通过<code>.</code>进行属性访问的时候创建，这里有个疑问我暂时没有查到，这一创建过程是在<code>__getattr__</code>方法中还是在<code>__getattribute__</code>方法中？暂时没有查到，需要再去看下源码。<br>动态创建，加上缓存池的应用，共同造成了上述的id变化的现象。由于<code>id(a.foo)</code>这行代码在执行完毕之后，对于当时创建的对象的引用就已经为0了，因此会被立即释放，Python出于性能的考虑，把这个对象放入了池中，再次执行<code>id(a.foo)</code>的时候，不再重新创建对象，而是从缓存池中去拿，因此id是一样的，当使用m1这样的属性引用住了对象的时候，再次调用<code>a.foo</code>，就会创建一个新的对象，因此id就不同了。当<code>del m1</code>之后，释放的对象又重新放回到缓存池，等待被复用。</p>
+<blockquote>
+<p>思考： 如果我把m1、m2两个变量的释放顺序反过来，然后再去取id，会有有不同？</p>
+</blockquote>
+<p>我们通过代码来看一下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> <span class="number">1</span>, id(a.foo)	<span class="comment"># 2 37281264</span></span><br><span class="line"><span class="keyword">print</span> <span class="number">2</span>, id(a.foo)	<span class="comment"># 2 37281264</span></span><br><span class="line"></span><br><span class="line">m1 = a.foo</span><br><span class="line">m2 = a.foo</span><br><span class="line"><span class="keyword">print</span> <span class="number">3</span>, id(m1)		<span class="comment"># 3 37281264</span></span><br><span class="line"><span class="keyword">print</span> <span class="number">4</span>, id(m2)		<span class="comment"># 4 37201080</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="number">5</span>, id(a.foo)	<span class="comment"># 5 32824896</span></span><br><span class="line"></span><br><span class="line">m1 = <span class="keyword">None</span></span><br><span class="line">m2 = <span class="keyword">None</span></span><br><span class="line"><span class="keyword">print</span> <span class="number">6</span>, id(a.foo)	<span class="comment"># 6 37201080</span></span><br></pre></td></tr></table></figure></p>
+<p>解释这个现象很容易——缓存池是使用栈的数据结构来存储的，按照对象归还顺序入栈，获取的时候从栈顶拿，那么后面获取的对象就是栈顶最新归还的对象。</p>
+<h3 id="4-3-foo在哪里"><a href="#4-3-foo在哪里" class="headerlink" title="4.3 foo在哪里"></a>4.3 foo在哪里</h3><p>Bound method和Unbound method对象都是在调用的时刻创建，然后引用计数为0的时候被释放，这解释了他们从哪儿来到哪儿去的问题，但是还没有解释这些方法执行的时候调用的代码在哪里。<br>前面提到了一个点，就是a身上的<code>__dict__</code>里并没有foo变量，但是也可以调用到foo方法，这是Python的属性获取机制来决定，首先从self的<code>__dict__</code>中检索，如果没找到会从type(self)的<code>__dict__</code>中检索，这里就是A，可以看下A的<code>__dict__</code>属性：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print A.__dict__ </span><br><span class="line"># &#123;&apos;__dict__&apos;: &lt;attribute &apos;__dict__&apos; of &apos;A&apos; objects&gt;, &apos;__module__&apos;: &apos;__main__&apos;, &apos;foo&apos;: &lt;function foo at 0x024CA4B0&gt;, &apos;__weakref__&apos;: &lt;attribute &apos;__weakref__&apos; of &apos;A&apos; objects&gt;, &apos;__doc__&apos;: None&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里有个key为foo的对象，<strong>注意</strong>，它是一个function对象，而不是unbound method对象，这也证明了它的动态生成。那a.foo这个bound method对象是如何访问到这个function对象的呢？我们来看一下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> A.foo.im_func, a.foo.im_func	    <span class="comment"># &lt;function foo at 0x0254A4B0&gt; &lt;function foo at 0x0254A4B0&gt;</span></span><br><span class="line"><span class="keyword">print</span> A.foo.im_class, a.foo.im_class	<span class="comment"># &lt;class '__main__.A'&gt; &lt;class '__main__.A'&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>无论是bound method还是unbound method，都是有im_func和im_class这两个属性的，其中im_func属性就是<code>A.__dict__</code>中的foo对象，im_class就是A对象，这样就不难猜测a.foo调用过程中的过程，最终是通过im_class和im_func来找到真正执行的代码。</p>
+<h3 id="4-4-Python语言的动态特性"><a href="#4-4-Python语言的动态特性" class="headerlink" title="4.4 Python语言的动态特性"></a>4.4 Python语言的动态特性</h3><blockquote>
+<p><strong>思考</strong>： 说了这么多，理解了原理，那么Python语言为什么要这么设计呢？</p>
+</blockquote>
+<p>这么设计其实是为了实现Python的动态特性，我们来看一个例子：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span><span class="params">(object)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> <span class="string">'A'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span></span><br><span class="line">	<span class="keyword">return</span> <span class="string">'B'</span></span><br><span class="line"></span><br><span class="line">a = A()</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> foo, A.foo.im_func, a.foo.im_func <span class="comment"># &lt;function foo at 0x0230A2B0&gt; &lt;function foo at 0x0239A4B0&gt; &lt;function foo at 0x0239A4B0&gt;</span></span><br><span class="line">A.foo = foo</span><br><span class="line"><span class="keyword">print</span> foo, A.foo.im_func, a.foo.im_func	<span class="comment"># &lt;function foo at 0x0230A2B0&gt; &lt;function foo at 0x0230A2B0&gt; &lt;function foo at 0x0230A2B0&gt;</span></span><br><span class="line"><span class="keyword">print</span> a.foo()	<span class="comment"># B</span></span><br><span class="line"><span class="keyword">print</span> A.foo(a)	<span class="comment"># B</span></span><br></pre></td></tr></table></figure></p>
+<p>这段代码其实是游戏中常用的hotfix的一种实现原来的demo。</p>
+<blockquote>
+<p>所谓hotfix，是指在玩家不知情的情况下，替换掉客户端脚本代码中的部分逻辑，实现修复bug的目的。</p>
+</blockquote>
+<p>对于静态语言，进行这种运行时修改代码比较麻烦，而且像ios这样的平台禁止了在数据段执行代码，也就是你无法动态替换dll，使用native的语言或者C#的几乎不能方便地进行hotfix，这也是脚本语言在游戏行业里（尤其国内）面非常常用的原因。<br>上述例子中，<code>A.foo = foo</code>这句代码替换了A的<code>__dict__</code>中的foo对象，由于方法对象都是在使用时动态生成的，因此无论是新创建的对象还是<strong>已经在内存中存在的对象</strong>，都会在调用方法的时候重新生成方法对象，它们的im_func属性就指向了类中的新的属性对象。</p>
+<h3 id="4-5-代价"><a href="#4-5-代价" class="headerlink" title="4.5 代价"></a>4.5 代价</h3><p>动态的代价，就是慢。<br>C++静态语言的方法调用，即使考虑继承的情况，也不过是一次虚表的查询操作，而python中不但有各种<code>__dict__</code>检索，而且要通过<code>__mro__</code>属性向继承的父类进行搜索，这块具体的过程在后面进行分析。然后加上对象的创建过程，影响效率可想而知。<br>因此，我们在代码中常用的一种优化是：</p>
+<blockquote>
+<p>如果在一段代码中有对于对象属性的频繁访问，在不会修改其内容的前提下，通常会使用一个局部变量保存属性的应用供后面的代码逻辑使用。</p>
+</blockquote>
+<p>代码中通常会有<code>a.b.c.d.func()</code>这样的调用，如果这段逻辑在一个循环中，就可以先定义一个<code>func = a.b.c.d.func</code>，然后通过func()来进行函数调用即可。<br>性能差别有多大？我们使用Python的timeit来做一些测试：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> timeit</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span><span class="params">(object)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">		self.value = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span></span><br><span class="line">		<span class="keyword">pass</span></span><br><span class="line">		</span><br><span class="line">a = A()</span><br><span class="line"></span><br><span class="line">n = <span class="number">100000000</span></span><br><span class="line"><span class="keyword">print</span> timeit.Timer(<span class="string">'a.foo'</span>, <span class="string">'from __main__ import a'</span>).timeit(n)</span><br><span class="line">m = a.foo</span><br><span class="line"><span class="keyword">print</span> timeit.Timer(<span class="string">'m'</span>, <span class="string">'from __main__ import m'</span>).timeit(n)</span><br></pre></td></tr></table></figure></p>
+<p>输出结果<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">6.63377350532</span></span><br><span class="line"><span class="number">1.8554838526</span></span><br></pre></td></tr></table></figure></p>
+<p>在执行一亿次的情况下，是6.6s和1.8s的差距。注意这里并没有真正执行foo函数，而只是获取这个属性。其实这里我有一个疑问，是属性访问导致的这么大的性能差异，还是bound method对象的生成呢？于是我又添加了对于value属性的访问测试：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">value = a.value</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> timeit.Timer(<span class="string">'a.value'</span>, <span class="string">'from __main__ import a'</span>).timeit(n)</span><br><span class="line">m = a.foo</span><br><span class="line"><span class="keyword">print</span> timeit.Timer(<span class="string">'value'</span>, <span class="string">'from __main__ import value'</span>).timeit(n)</span><br></pre></td></tr></table></figure></p>
+<p>输出结果：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">4.79706941201</span></span><br><span class="line"><span class="number">1.85150998879</span></span><br></pre></td></tr></table></figure></p>
+<p>可以看到，单纯的属性访问也是有很大的性能差异的，但是即使在有缓存池的情况下，同样通过<code>.</code>来访问属性与访问方法，也有较大的性能差异，这就是Python为了实现动态特性所付出的代价之一。</p>
+<blockquote>
+<p><strong>总结</strong>：从一个语言概念，探究到语言的实现，再到把这个语言特性应用到工程中，这需要技术的积累和积淀，而透过初看难以理解的现象分析出问题的本质，需要更多耐心和经验。</p>
+</blockquote>
+<p>2016年7月2日晚于杭州家中</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/07/03/pythonadvance2/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Python进阶(二)</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="pythonadvance3" data-title="Python进阶(三)" data-url="http://inarrater.com/2016/07/03/pythonadvance3/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"inarrater"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2016 董夕
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+</body>
+</html>

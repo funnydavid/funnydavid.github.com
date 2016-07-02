@@ -107,7 +107,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/开发/" style="font-size: 10px;">开发</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
+						<a href="/tags/Python/" style="font-size: 20px;">Python</a> <a href="/tags/开发/" style="font-size: 20px;">开发</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
 					</div>
 				</section>
 				
@@ -173,6 +173,148 @@
 
       <div class="body-wrap">
   
+    <article id="post-pythonadvance3" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/07/03/pythonadvance3/" class="article-date">
+  	<time datetime="2016-07-02T20:55:21.000Z" itemprop="datePublished">2016-07-03</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/07/03/pythonadvance3/">Python进阶(三)</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="4-Bound-Method和Unbound-Method"><a href="#4-Bound-Method和Unbound-Method" class="headerlink" title="4. Bound Method和Unbound Method"></a>4. Bound Method和Unbound Method</h2><blockquote>
+<p><strong>声明</strong>: 本系列文章中的所有内容都是基于Python 2.x版本的，原因是网易绝大部分项目都是在用2.x版本，笔者参与过的项目无论端游还是手游都是基于Python 2.7.x版本进行的开发，因此无论经验还是课程适用性，都是在2.x范围内。在Python 3.x中，unbound method的概念已经被取消了。</p>
+</blockquote>
+<p>上一小节说了，Bound Method和Unbound Method这部分是我参与大雄的课程中最喜欢的一部分，因为它让我窥探到了Python语言动态特性的一角，也加深了我对于平时在用的一种优化方法的认识。这部分会比较长，我们分几个小节来细说。</p>
+<h3 id="4-1-基本概念"><a href="#4-1-基本概念" class="headerlink" title="4.1 基本概念"></a>4.1 基本概念</h3><p>先从代码来看，定义一个简单的类A：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span><span class="params">(object)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span></span><br><span class="line">		<span class="keyword">pass</span></span><br><span class="line">		</span><br><span class="line">a = A()</span><br></pre></td></tr></table></figure></p>
+<p>很简单，我们来打印一些信息来看看：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> A.foo		<span class="comment"># &lt;unbound method A.foo&gt;</span></span><br><span class="line"><span class="keyword">print</span> a.foo		<span class="comment"># &lt;bound method A.foo of &lt;__main__.A object at 0x023DE070&gt;&gt;</span></span><br><span class="line"><span class="keyword">print</span> A.foo == a.foo <span class="comment"># False</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> a, id(a)	<span class="comment">#&lt;__main__.A object at 0x0235E070&gt; 37085296</span></span><br><span class="line"><span class="keyword">print</span> A.foo.im_self	<span class="comment"># None</span></span><br><span class="line"><span class="keyword">print</span> a.foo.im_self	<span class="comment"># &lt;__main__.A object at 0x0241E070&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>为了方便对比和理解我把输出的结果放在了对应的print之后，首先输出两个<code>A.foo</code>和<code>a.foo</code>，看到了他们分别是两个对象，一个叫做unbound method，一个叫做bound method，很明显他们是两个不同的对象。这跟我从C++角度来理解Python的方法（Method）就有点不同了——通常静态语言中，面向对象的设计，把方法的定义放在类上，对象通过一定的机制（比如虚函数表等）查找到对应的函数地址来进行调用，那按这样推理，A.foo和a.foo应该是一个东西才对。事实证明Python语言不是这样的。</p>
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a  href="/2016/07/03/pythonadvance3/#more">more >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-pythonadvance2" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/07/03/pythonadvance2/" class="article-date">
+  	<time datetime="2016-07-02T20:54:20.000Z" itemprop="datePublished">2016-07-03</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/07/03/pythonadvance2/">Python进阶(二)</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这一部分是关于Python的Callable。在Stackoverflow上有一个专门的问题叫做<a href="http://stackoverflow.com/questions/111234/what-is-a-callable-in-python">“What is a “callable” in Python”</a>，高票回答中说：</p>
+<blockquote>
+<p>A callable is anything that can be called.</p>
+</blockquote>
+<p>这个回答很抽象，大雄从更具体的角度来阐述Callable这个概念——在Python中哪些是callable的？</p>
+<ul>
+<li><strong>function</strong></li>
+<li><strong>closure</strong></li>
+<li><strong>bound method</strong></li>
+<li><strong>unbound method</strong></li>
+<li><strong>class method</strong></li>
+<li><strong>static method</strong></li>
+<li><strong>functor</strong></li>
+<li><strong>operator</strong></li>
+<li><strong>class</strong></li>
+</ul>
+<p>先说答案，很明显，列出的这些都是callable的。这些概念中的大部分我在工作中都有使用，包括比如closure的坑也帮助新同学调试bug的时候看到新入职的同学自己踩到过，但是对于<strong>bound method</strong>和<strong>unbound method</strong>这些概念还不是很清晰。我们也一个个来看。</p>
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a  href="/2016/07/03/pythonadvance2/#more">more >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-pythonadvance1" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -190,7 +332,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/06/30/pythonadvance1/">Python进阶（一）</a>
+      <a class="article-title" href="/2016/06/30/pythonadvance1/">Python进阶(一)</a>
     </h1>
   
 
