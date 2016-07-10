@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>Python进阶(五) | Narrater</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="7. Function作为Callable部分第一个别提到，但是最后来分析它。原因其实很简单，我们已经发现前面的很多内容，包括bound method也好，static method也好，甚至operators，本质上都是function。那么，如何去探究一个Python的Function的属性呢，阅读过前面内容的读者应该很明白了，通过一些简单的代码加上print就可以看到不少东西了。我们先用di">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python进阶(五)">
+<meta property="og:url" content="http://inarrater.com/2016/07/10/pythonadvance5/index.html">
+<meta property="og:site_name" content="Narrater">
+<meta property="og:description" content="7. Function作为Callable部分第一个别提到，但是最后来分析它。原因其实很简单，我们已经发现前面的很多内容，包括bound method也好，static method也好，甚至operators，本质上都是function。那么，如何去探究一个Python的Function的属性呢，阅读过前面内容的读者应该很明白了，通过一些简单的代码加上print就可以看到不少东西了。我们先用di">
+<meta property="og:updated_time" content="2016-07-10T13:04:10.685Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python进阶(五)">
+<meta name="twitter:description" content="7. Function作为Callable部分第一个别提到，但是最后来分析它。原因其实很简单，我们已经发现前面的很多内容，包括bound method也好，static method也好，甚至operators，本质上都是function。那么，如何去探究一个Python的Function的属性呢，阅读过前面内容的读者应该很明白了，通过一些简单的代码加上print就可以看到不少东西了。我们先用di">
+  
+    <link rel="alternative" href="/atom.xml" title="Narrater" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">董夕</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">讲述，而非记录</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+					        
+								<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+					        
+								<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/Python/" style="font-size: 20px;">Python</a> <a href="/tags/开发/" style="font-size: 20px;">开发</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">程序员，对故事有爱，想要有趣的人生。</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">董夕</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+			
+				<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+			</div>
+			<hgroup>
+			  <h1 class="header-author">董夕</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">讲述，而非记录</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+			        
+						<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap"><article id="post-pythonadvance5" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/07/10/pythonadvance5/" class="article-date">
+  	<time datetime="2016-07-10T13:03:25.000Z" itemprop="datePublished">2016-07-10</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Python进阶(五)
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="7-Function"><a href="#7-Function" class="headerlink" title="7. Function"></a>7. Function</h2><p>作为Callable部分第一个别提到，但是最后来分析它。原因其实很简单，我们已经发现前面的很多内容，包括bound method也好，static method也好，甚至operators，本质上都是function。<br>那么，如何去探究一个Python的Function的属性呢，阅读过前面内容的读者应该很明白了，通过一些简单的代码加上print就可以看到不少东西了。<br>我们先用dirf来看下一个function对象身上有什么。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(a, b = <span class="number">10</span>)</span>:</span></span><br><span class="line">	<span class="keyword">print</span> a + b</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> dir(foo)</span><br></pre></td></tr></table></figure></p>
+<p>输出结果：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">'__call__'</span>, <span class="string">'__class__'</span>, <span class="string">'__closure__'</span>, <span class="string">'__code__'</span>, <span class="string">'__defaults__'</span>, <span class="string">'__delattr__'</span>, <span class="string">'__dict__'</span>, <span class="string">'__doc__'</span>, <span class="string">'__format__'</span>, <span class="string">'__get__'</span>, <span class="string">'__getattribute__'</span>, <span class="string">'__globals__'</span>, <span class="string">'__hash__'</span>, <span class="string">'__init__'</span>, <span class="string">'__module__'</span>, <span class="string">'__name__'</span>, <span class="string">'__new__'</span>, <span class="string">'__reduce__'</span>, <span class="string">'__reduce_ex__'</span>, <span class="string">'__repr__'</span>, <span class="string">'__setattr__'</span>, <span class="string">'__sizeof__'</span>, <span class="string">'__str__'</span>, <span class="string">'__subclasshook__'</span>, <span class="string">'func_closure'</span>, <span class="string">'func_code'</span>, <span class="string">'func_defaults'</span>, <span class="string">'func_dict'</span>, <span class="string">'func_doc'</span>, <span class="string">'func_globals'</span>, <span class="string">'func_name'</span>]</span><br></pre></td></tr></table></figure></p>
+<p>不管双下划线开头的部分属性，我们只看对外开放的部分，先来看一看func_name属性吧。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> foo       <span class="comment">#&lt;function foo at 0x0235A2B0&gt;</span></span><br><span class="line">foo.func_name = <span class="string">'abc'</span></span><br><span class="line"><span class="keyword">print</span> foo       &lt;function abc at <span class="number">0x0235A2B0</span>&gt;</span><br></pre></td></tr></table></figure></p>
+<p>func_name看上只是用来记录信息的一个名称而已，修改它并不会影响函数对象的调用。<br>我们再来看下func_defaults属性，看名称它是和默认值相关。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">foo(<span class="number">1</span>)			<span class="comment">#11</span></span><br><span class="line"><span class="keyword">print</span> foo.func_defaults		<span class="comment">#(10,)</span></span><br><span class="line">foo.func_defaults = (<span class="number">100</span>, )</span><br><span class="line">foo(<span class="number">1</span>)			<span class="comment">#101</span></span><br></pre></td></tr></table></figure></p>
+<p>依然是把输出的结果放在代码行的后面以注释的形式给出，我们看到函数对象的func_defaults属性是一个元组，依次列出了所有默认参数。我们可以通过改变这个属性来改变已经被定义了的函数的默认参数。<br>为了可以看到func_closture的内容，我们构建一个闭包：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">bar</span><span class="params">(n)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">(x)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> x + n</span><br><span class="line">		</span><br><span class="line">	<span class="keyword">return</span> f</span><br><span class="line">	</span><br><span class="line">f = bar(<span class="number">1</span>)</span><br><span class="line">g = bar(<span class="string">"abc"</span>)</span><br><span class="line"><span class="keyword">print</span> f(<span class="number">2</span>)		<span class="comment"># 3</span></span><br><span class="line"><span class="keyword">print</span> g(<span class="string">"def"</span>)	<span class="comment"># defabc</span></span><br><span class="line"><span class="keyword">print</span> foo.func_closure	<span class="comment"># None</span></span><br><span class="line"><span class="keyword">print</span> f.func_closure	<span class="comment"># (&lt;cell at 0x029655F0: int object at 0x029378E0&gt;,)</span></span><br><span class="line"><span class="keyword">print</span> g.func_closure	<span class="comment"># (&lt;cell at 0x02A31130: str object at 0x02972AE8&gt;,)</span></span><br></pre></td></tr></table></figure></p>
+<p>f和g是两个闭包对象，可以看到foo这个函数对象身上的func_closure属性为None，f和g身上分别是两个cell对象，这部分内容和闭包中讲的部分就契合在了一起。<br>func_code属性我们也来看一下<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">bar</span><span class="params">(a, b)</span>:</span></span><br><span class="line">	<span class="keyword">print</span> a * b</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> bar.func_code</span><br><span class="line"><span class="keyword">print</span> dir(bar.func_code)</span><br><span class="line"></span><br><span class="line">foo(<span class="number">6</span>, <span class="number">2</span>)</span><br><span class="line">foo.func_code = bar.func_code</span><br><span class="line">foo(<span class="number">6</span>, <span class="number">2</span>)</span><br></pre></td></tr></table></figure></p>
+<p>输出的结果由于比较长，写在了下面：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;code object bar at <span class="number">02516</span>C80, file <span class="string">"C:\Users\David-PC\Desktop\Advanced Course on Python 2016\a014.py"</span>, line <span class="number">27</span>&gt;</span><br><span class="line">[<span class="string">'__class__'</span>, <span class="string">'__cmp__'</span>, <span class="string">'__delattr__'</span>, <span class="string">'__doc__'</span>, <span class="string">'__eq__'</span>, <span class="string">'__format__'</span>, <span class="string">'__ge__'</span>, <span class="string">'__getattribute__'</span>, <span class="string">'__gt__'</span>, <span class="string">'__hash__'</span>, <span class="string">'__init__'</span>, <span class="string">'__le__'</span>, <span class="string">'__lt__'</span>, <span class="string">'__ne__'</span>, <span class="string">'__new__'</span>, <span class="string">'__reduce__'</span>, <span class="string">'__reduce_ex__'</span>, <span class="string">'__repr__'</span>, <span class="string">'__setattr__'</span>, <span class="string">'__sizeof__'</span>, <span class="string">'__str__'</span>, <span class="string">'__subclasshook__'</span>, <span class="string">'co_argcount'</span>, <span class="string">'co_cellvars'</span>, <span class="string">'co_code'</span>, <span class="string">'co_consts'</span>, <span class="string">'co_filename'</span>, <span class="string">'co_firstlineno'</span>, <span class="string">'co_flags'</span>, <span class="string">'co_freevars'</span>, <span class="string">'co_lnotab'</span>, <span class="string">'co_name'</span>, <span class="string">'co_names'</span>, <span class="string">'co_nlocals'</span>, <span class="string">'co_stacksize'</span>, <span class="string">'co_varnames'</span>]</span><br><span class="line"><span class="number">8</span></span><br><span class="line"><span class="number">12</span></span><br></pre></td></tr></table></figure></p>
+<p>我们可以看到，func<em>code是一个code object，它有的属性有很多，基本以co</em>开头，如果有兴趣，可以自己一点点去把他们print出来看，也可以发现很多有趣的东西，这里暂时不进行展开。例子的另外一部分展示了func_code是可以被替换的。</p>
+<blockquote>
+<p><strong>扩展</strong>：关于code对象，可以阅读<a href="https://late.am/post/2012/03/26/exploring-python-code-objects.html" target="_blank" rel="external">Exploring Python Code Objects</a>，了解怎样通过compile方法来生成code object，以及code类的一些属性。</p>
+</blockquote>
+<p>关于function中比较重要的几个属性，以表格的形式总结出来。<br>| 属性名称      | 描述   |<br>| ——–      | —–:  |<br>| func_name     | 函数名称 |<br>| func_defaults |   函数的默认值列表   |<br>| func_code     |    函数体的code对象    |<br>| func_globals  |  函数的全局命名空间 |<br>| func_closure  | 函数的cell对象 |<br>看了function的这些属性，对于之前讨论过的hotfix是不是有了更深的了解呢？只需要替换一个函数对象的func_code，func_defaults，func_closure等属性，这个函数的行为就可以被改变了，结合上bound method和unbound method的动态生成的特性，对Python语言的动态性的原理的理解是否有更深入了一步呢？</p>
+<h2 id="8-Classes"><a href="#8-Classes" class="headerlink" title="8. Classes"></a>8. Classes</h2><p>关于类，其实有很多可以讨论的内容，从生命周期的角度来看，一个C++类的对象包含如下四个生命周期：</p>
+<ol>
+<li>内存分配，malloc</li>
+<li>调用构造函数初始化对象，A::A()</li>
+<li>调用析构函数清理对象，A::~A()</li>
+<li>释放内存，free</li>
+</ol>
+<p>不同的编译器在内存分配或者释放的时候具体使用的函数可能不同，但这四个步骤是都有的，而且在C++中，1和4两个步骤是隐式的，即开发者通常不需要去关心（当然也有可以去操作的方法），它们分别隐含在了构造函数和析构函数当中。<br>对于Python的对象来说，其生命周期包含如下三个部分：</p>
+<ol>
+<li>内存分配，<code>__new__</code>方法；</li>
+<li>调用初始化(initializer)，<code>__init__</code>方法；</li>
+<li>调用终结器(finalizer)，<code>__del__</code>方法；</li>
+</ol>
+<p>对于自定义的类，上述的过程可以通过重载对应的方法来实现对于其过程的控制。可以看到，这里并没有内存释放的过程，也就是说开发者无法主动控制对象所占用过的内存的释放，这一部分是方便开发者不需要进行内存的管理，另外也利于Python语言本身进行对象缓存池的设计与实现。这部分内容在bound method的部分已经看到了缓存池在Python的应用，更多的讨论放在内存管理的部分来进行。</p>
+<blockquote>
+<p><strong>思考</strong>：Python中如何实现单例模式？是否可以通过重载<code>__new__</code>方法，在每次分配内存的时候返回同一个对象来实现呢？</p>
+</blockquote>
+<p>答案是否定的，因为Python对于生命周期的控制决定了在<code>__new__</code>方法被调用，内存分配完毕之后会主动调用<code>__init__</code>方法，这样虽然分配的是同一个对象，但是多次<code>__init__</code>方法的调用可能会导致对象的属性被修改，可能会引发意料之外的bug，比如已经被修改过属性又被<code>__init__</code>方法改变等。</p>
+<p>说了这些之后，对于Class我们返回Callable的主题，Python中的Class也是一个Callable的对象，调用一个类的结果很简单，就是获得一个类的实例化对象，我们来看一个简单的例子。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span><span class="params">(object)</span>:</span></span><br><span class="line">	<span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> Foo 				<span class="comment"># &lt;class '__main__.Foo'&gt;</span></span><br><span class="line"><span class="keyword">print</span> Foo.__call__		<span class="comment"># &lt;method-wrapper '__call__' of type object at 0x029D33E0&gt;</span></span><br><span class="line"><span class="keyword">print</span> Foo()				<span class="comment"># &lt;__main__.Foo object at 0x02AAEED0&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> func.__call__		<span class="comment"># &lt;method-wrapper '__call__' of function object at 0x029C77F0&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>类Foo是一个class对象，它是可以访问到<code>__call__</code>属性的，它是一个id为0x029D33E0的type对象的’<strong>call</strong>‘方法的method-wrapper，如果打印<code>print id(Foo)</code>的话，你可以发现它的十六进制结果就是0x029D33E0。这容易理解，而对于method-wrapper，我把它理解为一个方法的封装。查了一些资料，但是没有找到官方的精准答案，这里我猜测对象的创建、函数的执行等过程，在Python中可能是一种C的实现，因此在Python层给出的是一个wrapper，可以让他们的行为像一个Python的函数一样。当然这是我的猜测，如果有知道准确答案的朋友欢迎指导。</p>
+<blockquote>
+<p><strong>思考</strong>：Class作为一个Callable的类型，对于我们开发中有什么好处吗？</p>
+</blockquote>
+<p>想象一下工厂方法在C++中的实现，通常需要通过一个函数来封装一个对象的创建过程，而在Python中，我们可以把对象类型存储在一个字典或者列表中，通过映射关系，可以直接生成对象。某种程度上说，这也是一种“反射”机制。具体的代码由于比较简单，此处就不列举了。</p>
+<blockquote>
+<p><strong>总结</strong>：关于Callable的部分已经聊得差不多了，从我们分析的过程看，我们通常使用dir和print在加上一些分析能力就可以看出Python语言设计上的一些原理和思路，一切皆对象的理念被应用的淋漓尽致，而为了实现其动态特性，Python语言做了很多特殊的设计和方法。</p>
+</blockquote>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/07/09/pythonadvance4/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Python进阶(四)</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="pythonadvance5" data-title="Python进阶(五)" data-url="http://inarrater.com/2016/07/10/pythonadvance5/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"inarrater"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2016 董夕
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+</body>
+</html>
