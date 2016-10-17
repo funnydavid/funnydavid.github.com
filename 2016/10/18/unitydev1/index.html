@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>Unity手游开发札记——Lua语言集成 | Narrater</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="0. 前言2016年8月从网易“毕业”，在新的公司开始新的工作，这其中的波折与故事暂时不提，等以后有时间的时候再另开文章总结回顾。全新的手游项目从零开始，使用Unity引擎开发一款手游项目，本系列札记主要针对开发过程中重要的部分进行记录和总结，一方面方便自己日后回顾，也希望可以给遇到类似问题的朋友一些提醒和启发。当然，自己在Unity引擎和Lua语言方面都是新手，更加希望抛砖引玉，针对遇到的问题进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unity手游开发札记——Lua语言集成">
+<meta property="og:url" content="http://inarrater.com/2016/10/18/unitydev1/index.html">
+<meta property="og:site_name" content="Narrater">
+<meta property="og:description" content="0. 前言2016年8月从网易“毕业”，在新的公司开始新的工作，这其中的波折与故事暂时不提，等以后有时间的时候再另开文章总结回顾。全新的手游项目从零开始，使用Unity引擎开发一款手游项目，本系列札记主要针对开发过程中重要的部分进行记录和总结，一方面方便自己日后回顾，也希望可以给遇到类似问题的朋友一些提醒和启发。当然，自己在Unity引擎和Lua语言方面都是新手，更加希望抛砖引玉，针对遇到的问题进">
+<meta property="og:updated_time" content="2016-10-17T16:12:20.840Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Unity手游开发札记——Lua语言集成">
+<meta name="twitter:description" content="0. 前言2016年8月从网易“毕业”，在新的公司开始新的工作，这其中的波折与故事暂时不提，等以后有时间的时候再另开文章总结回顾。全新的手游项目从零开始，使用Unity引擎开发一款手游项目，本系列札记主要针对开发过程中重要的部分进行记录和总结，一方面方便自己日后回顾，也希望可以给遇到类似问题的朋友一些提醒和启发。当然，自己在Unity引擎和Lua语言方面都是新手，更加希望抛砖引玉，针对遇到的问题进">
+  
+    <link rel="alternative" href="/atom.xml" title="Narrater" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">董夕</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">讲述，而非记录</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+					        
+								<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+					        
+								<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/Python/" style="font-size: 15px;">Python</a> <a href="/tags/开发/" style="font-size: 20px;">开发</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">程序员，对故事有爱，想要有趣的人生。</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">董夕</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+			
+				<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+			</div>
+			<hgroup>
+			  <h1 class="header-author">董夕</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">讲述，而非记录</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+			        
+						<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap"><article id="post-unitydev1" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/10/18/unitydev1/" class="article-date">
+  	<time datetime="2016-10-17T16:11:50.000Z" itemprop="datePublished">2016-10-18</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Unity手游开发札记——Lua语言集成
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lua/">Lua</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h2><p>2016年8月从网易“毕业”，在新的公司开始新的工作，这其中的波折与故事暂时不提，等以后有时间的时候再另开文章总结回顾。全新的手游项目从零开始，使用Unity引擎开发一款手游项目，本系列札记主要针对开发过程中重要的部分进行记录和总结，一方面方便自己日后回顾，也希望可以给遇到类似问题的朋友一些提醒和启发。当然，自己在Unity引擎和Lua语言方面都是新手，更加希望抛砖引玉，针对遇到的问题进行更广泛的讨论和更多大牛的提点。<br>具体到本篇文章的主题，主要是Lua语言和Unity引擎的集成。这是我最近一个月左右的时间一直在尝试解决的问题，本文主要记录方案的选择和对比，以及针对选择的方案自己进行的一些改造和思考。</p>
+<h2 id="1-为什么要集成Lua语言"><a href="#1-为什么要集成Lua语言" class="headerlink" title="1. 为什么要集成Lua语言"></a>1. 为什么要集成Lua语言</h2><p>有句从知乎开始发展起来的名言叫做——“先问是不是，再问为什么”，类似地，在做一个技术方案的时候，“先问为什么，再考虑如何做”。那我们第一个问题就是要解决这个项目“为什么要集成Lua语言”？<br>在网易内部，一向遵守的传统是逻辑用脚本来做，比如Python、Lua等，好处主要有如下几点：</p>
+<ul>
+<li>利用脚本语言的动态特性，客户端可以做Hotfix，服务端可以做Refresh，无论在运营还是开发期这一特性都很有用；</li>
+<li>脚本语言运行在虚拟机中，它把游戏进程搞挂的概率相比C/C++等静态语言要低；</li>
+<li>脚本语言相对好学习一些，对于新手来说上手难度较低，比如Python，当然要精通也需要时间和经验的积累；</li>
+</ul>
+<p>当然还有其他的优点，对应的缺点就在于运行效率比C/C++低不少，相对于静态语言在编译器有完备的语法检查，动态语言更容易出一些运行时的错误，调试难度相对大一些。<br>而对于Unity引擎，因为它已经选择了C#作为对应的脚本语言，因此再集成一门Lua语言显得有些多余。核心的原因还是在IOS设备上因为使用了IL2CPP，无法实现像Android上面那样直接替换DLL的方式来进行更新，这导致游戏逻辑如果出现错误，不但无法Hotfix修复，甚至连Patch都不能修复，只能重新提包。虽然APP Store现在对于应用的审核速度已经变快， 但是仍然需要2-3天以上的时间，这对于需要快速反应的商业游戏来说是无法容忍的。<br>目前了解到的业内常用的做法主要有如下几种：</p>
+<ul>
+<li>纯C#开发的方式，比如腾讯这种大厂，某些工作室的做法就是完全使用C#来进行开发，尽量做到功能逻辑可配置，这样出现某些重大问题可以通过更新数据的方式把逻辑暂时关闭掉。逻辑的更新安卓使用替换DLL的方式，IOS使用重新提包的方式。对外测试以安卓为主，并且大厂有比较好的QA团队进行质量保证，因此可以做到IOS最终上线的品质和bug都是相对少的。</li>
+<li>C#做核心逻辑，Lua做UI和活动玩法等执行频率低，需求变动较大的部分。这是目前了解到的一些创业团队使用得比较多的做法，在效率和可更新性之间的一个折中。</li>
+<li>以Lua为主的方式。也了解到一些公司的团队，包括网易内部的一些项目，使用逻辑都以Lua语言来写的方式进行开发。从网易之前的经验来看，逻辑使用纯脚本的方式并不会有太大问题。</li>
+</ul>
+<p>我们要开发的产品是一款商业游戏，对于出现问题快速响应的需求相对强烈，因此在Unity中使用Lua语言是必不可少的，至于多大范围地应用它，初步是计划大部分功能都是用Lua语言来开发，并制定每隔一段时间周期进行性能测试和评估的方式来确保性能可以满足需求。</p>
+<p>##2. 怎样集成Lua语言<br>在决定要使用Lua语言之后，要面临的问题就是如何在Unity中去集成它。可选的方案有很多，各种方案的实现原理也不尽相同，早期有各种在C#语言内部实现Lua虚拟机的，也有利用反射动态查找脚本的，但是目前比较主流的两种方案是<a href="https://github.com/topameng/tolua" target="_blank" rel="external">ToLua#</a>和<a href="https://github.com/pangweiwei/slua" target="_blank" rel="external">SLua</a>这两种方案。</p>
+<h3 id="2-1-性能对比测试"><a href="#2-1-性能对比测试" class="headerlink" title="2.1 性能对比测试"></a>2.1 性能对比测试</h3><p>这两个方案的原理都相似，基于LUAInterface，在开发时将C#的接口导出为Lua的版本，通过LuaState的栈结构来进行两种语言之间方法调用。这两个开源项目针对性能对比在网上打了不少口水仗，到底谁更优秀很难公允地评价，因为作为一个中间件性质的开源项目，除了性能之外还有生态圈、易用性等各个方面的问题需要考量。网上有不少对比的帖子可以自己搜索一下，这里不进行详述了，以免引起论战。<br>在这一部分我们最终选择了ToLua#，原因我是自己在安卓设备上进行测试了结果。钱康来前段时间发了一个帖子来对比几款Unity中Lua集成方案的性能，<a href="http://qiankanglai.me/2016/07/31/unity-lua/" target="_blank" rel="external">Unity常见lua解决方案性能比较</a>，这篇文章也整理投稿到了<a href="http://blog.uwa4d.com/archives/lua_perf.html" target="_blank" rel="external">UWA博客</a>中，我自己基于测试用例在锤子T2上进行了简单的性能测试，结论和这篇博客中的基本一致，未整理的数据如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">框架</th>
+<th style="text-align:center">test1</th>
+<th style="text-align:center">test2</th>
+<th style="text-align:center">test3</th>
+<th style="text-align:center">test4</th>
+<th style="text-align:center">test5</th>
+<th style="text-align:center">test6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">SLua</td>
+<td style="text-align:center">755.004</td>
+<td style="text-align:center">623.619</td>
+<td style="text-align:center">34.126</td>
+<td style="text-align:center">6812.41</td>
+<td style="text-align:center">1648.68</td>
+<td style="text-align:center">0.6352</td>
+</tr>
+<tr>
+<td style="text-align:center">ToLua#</td>
+<td style="text-align:center">634</td>
+<td style="text-align:center">871.2</td>
+<td style="text-align:center">297.8</td>
+<td style="text-align:center">3056.2</td>
+<td style="text-align:center">1139.4</td>
+<td style="text-align:center">1.206</td>
+</tr>
+</tbody>
+</table>
+<p>数据的单位是毫秒，测试是进行五次测试的平均值，使用锤子T2进行。这次测试并不严谨，只是为了亲自验证一下两者之间的性能差异到底是什么样子的。每一个测试用例的代码可以参考前文提到文章，这里只简单进行说明：</p>
+<ul>
+<li>test1是简单的属性操作；</li>
+<li>test2和test3是向量的操作；</li>
+<li>test4是GameObject的创建；</li>
+<li>test5是创建GameObject并进行一些属性操作；</li>
+<li>test6是对四元数进行操作。</li>
+</ul>
+<h3 id="2-2-性能差异的可能原因之一"><a href="#2-2-性能差异的可能原因之一" class="headerlink" title="2.2 性能差异的可能原因之一"></a>2.2 性能差异的可能原因之一</h3><p>个人感觉ToLua#在属性操作方面性能较好，而Vector的向量操作，因为可能会有Lua层的优化，即在Lua层完全实现了对应的操作，因此需要针对源码进行详细的对比。至于性能差异的原因，我没有从Lua虚拟机的实现部分分析，只是查看两种生成Warp后的接口进行一个简单的猜想。<br>选取同一个接口进行对比，UnityEngine.Animator的GetFloat接口，ToLua#的实现如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]</span><br><span class="line">static int GetFloat(IntPtr L)</span><br><span class="line">&#123;</span><br><span class="line">	try</span><br><span class="line">	&#123;</span><br><span class="line">		int count = LuaDLL.lua_gettop(L);</span><br><span class="line"></span><br><span class="line">		if (count == 2 &amp;&amp; TypeChecker.CheckTypes(L, 1, typeof(UnityEngine.Animator), typeof(int)))</span><br><span class="line">		&#123;</span><br><span class="line">			UnityEngine.Animator obj = (UnityEngine.Animator)ToLua.ToObject(L, 1);</span><br><span class="line">			int arg0 = (int)LuaDLL.lua_tonumber(L, 2);</span><br><span class="line">			float o = obj.GetFloat(arg0);</span><br><span class="line">			LuaDLL.lua_pushnumber(L, o);</span><br><span class="line">			return 1;</span><br><span class="line">		&#125;</span><br><span class="line">		//此处省略另一个重载接口</span><br><span class="line">		else</span><br><span class="line">		&#123;</span><br><span class="line">			return LuaDLL.luaL_throw(L, &quot;invalid arguments to method: UnityEngine.Animator.GetFloat&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	catch(Exception e)</span><br><span class="line">	&#123;</span><br><span class="line">		return LuaDLL.toluaL_exception(L, e);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p> SLua生成的代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]</span><br><span class="line">static public int GetFloat(IntPtr l) &#123;</span><br><span class="line">	try &#123;</span><br><span class="line">		int argc = LuaDLL.lua_gettop(l);</span><br><span class="line">		if(matchType(l,argc,2,typeof(int)))&#123;</span><br><span class="line">			UnityEngine.Animator self=(UnityEngine.Animator)checkSelf(l);</span><br><span class="line">			System.Int32 a1;</span><br><span class="line">			checkType(l,2,out a1);</span><br><span class="line">			var ret=self.GetFloat(a1);</span><br><span class="line">			pushValue(l,true);</span><br><span class="line">			pushValue(l,ret);</span><br><span class="line">			return 2;</span><br><span class="line">		&#125;</span><br><span class="line">		//此处省略另一个重载接口</span><br><span class="line">		pushValue(l,false);</span><br><span class="line">		LuaDLL.lua_pushstring(l,&quot;No matched override function to call&quot;);</span><br><span class="line">		return 2;</span><br><span class="line">	&#125;</span><br><span class="line">	catch(Exception e) &#123;</span><br><span class="line">		return error(l,e);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们注意到，这一函数只需要一个返回值的，但是SLua往栈里pushValue了两个值，然后返回2，第一个值是一个bool值，它应该是用于标识函数调用是否成功。在不了解其他地方是否有性能差别的情况下，这里应该是ToLus#和SLua在简单的接口调用上的性能差别的原因之一。SLua使用一个单独的值来表示函数运行结果，这对于错误可以进行更好的处理，但是多出的压栈和出栈操作有额外的性能消耗。</p>
+<h3 id="2-3-导出方式对比"><a href="#2-3-导出方式对比" class="headerlink" title="2.3 导出方式对比"></a>2.3 导出方式对比</h3><p>ToLua#导出使用的是白名单的方式，在CustomeSettings.cs文件中定义的接口才会导出，也提供了导出引擎所有的接口的功能；而SLua是以黑名单的方式进行，默认提供的功能是导出除了黑名单中的所有模块接口，也提供了一个导出最简接口的方式。<br>从使用角度来看，SLua黑名单的方式在开发期比较方便，默认会导出所有接口，因此不需要每次想要增加一个已经存在的类的Lua接口都要自己定义然后重新导出，发布的时候也可以使用最简接口的方式导出。维护起来ToLua#因为所有的导出类都是我们自己定义的，因此更加清晰明确。<br>鉴于这部分内容有源码可以进行修改，因此不是一个核心需要考虑的内容，两种方式各有利弊。</p>
+<h3 id="2-4-我们的选择"><a href="#2-4-我们的选择" class="headerlink" title="2.4 我们的选择"></a>2.4 我们的选择</h3><p>至于这一点是否是性能差别的主要原因，因为没有时间和精力阅读其他部分的源码，暂时也不太好进行对比和评价。出于性能的考虑，我们项目决定使用ToLua#作为Lua部分集成的方案，并且以接口的形式进行封装，来保证后面替换的可能性。</p>
+<h2 id="3-如何使用Lua语言"><a href="#3-如何使用Lua语言" class="headerlink" title="3. 如何使用Lua语言"></a>3. 如何使用Lua语言</h2><p>在进行了初步集成之后，怎样让开发人员可以更好地使用Lua语言是接下来要面临的问题。ToLua#对应有一套之前ulua作者开发的<a href="https://github.com/jarjin/LuaFramework_UGUI" target="_blank" rel="external">LuaFramework</a>，这一个框架集成了脚本打包和二进制脚本读取、UI制作流程等多个功能，但是也如作者自己所说，这一框架最初源自一个示例形式的Demo，因此其中代码有很多部分是和示例写死绑定的逻辑，比如启动逻辑、Lua二进制脚本的加载需要手动指定等等。<br>相对应的，SLua也有多套已经开源的框架，其中最为完善的是<a href="https://github.com/mr-kelly/KSFramework" target="_blank" rel="external">KSFramwork</a>，这套框架集成了资源打包、导表、Lua热重载在内的多个功能，而且代码质量初步看起来还不错，因此最终我们决定把KSFramwork中的SLua部分替换成ToLua#的部分来结合使用。<br>改造的过程还比较简单，由于该部分使用Lua耦合的只有两块内容，一是UIControler部分，二是LuaBehavior部分，所有的接口都由LuaModule模块提供。因此改造的过程也就比较明确了：</p>
+<ol>
+<li>删除源代码中的SLua部分，接入ToLua#的部分；</li>
+<li>使用ToLua#重写LuaModule的实现；</li>
+<li>改造LuaUIController，使用新的LuaModule接口实现之前的功能；</li>
+<li>改造LUABehavior模块。</li>
+</ol>
+<p>代码删除和LuaModule模块的重新实现都比较简单，着重介绍一下LuaUIController和LUABehavior模块的改造。</p>
+<h3 id="3-1-改造初衷"><a href="#3-1-改造初衷" class="headerlink" title="3.1 改造初衷"></a>3.1 改造初衷</h3><p>之前的KSFramwork还是一个核心逻辑在C#，Lua只承载UI等逻辑的模块，这与我之前从网易“继承”的“轻引擎，重脚本”的思路并不契合。在这一思路下，引擎可以看做渲染、资源加载、音效等功能的提供者，脚本逻辑负责使用这些功能构建游戏内容。那这样大部分与逻辑相关的控制权就应该从引擎交给脚本部分来进行。Unity作为一个比较特殊的例子，虽然对于它来说，C#部分已经是脚本了，但是对于希望着重使用Lua脚本的我们来说，因为C#不可更新，因此被视作了引擎部分。<br>最为简单的设计就是当引擎初始化完毕之后，通过一个接口调用把后续的逻辑都交由脚本来控制，大部分与游戏玩法相关的模型加载、声音播放、特效播放、动画播放等由脚本来控制。tick逻辑为了减少调用次数，每帧也由引擎调用注册的一个脚本接口进行统一调用，脚本层自己做分发。</p>
+<h3 id="3-2-LuaUIController的改造"><a href="#3-2-LuaUIController的改造" class="headerlink" title="3.2 LuaUIController的改造"></a>3.2 LuaUIController的改造</h3><p>LuaUIController原始的方式是在C#层通过ui模块的名称加载对应的一个lua文件，获取一个lua table进行缓存，在比如OnInit等需要接口调用的地方查找这个table中对应的函数进行调用。这种方式的界面是由C#层的逻辑来驱动加载和显示的，而且在加载过程中要有文件的搜索和检查过程。<br>这样会存在一个问题，就是脚本层的逻辑无法或者很难去控制界面对象的生命周期。针对资源的生命周期，“<strong>谁创建谁管理</strong>”的策略不再可以很方便地来明确责任的划分，因此要进行改造。<br>改造的方向很简单，将界面加载和显示的接口开放到Lua层，然后在创建的时候由lua层传递一个table对象进来，C#中进行缓存，当界面资源异步加载完毕，需要进行接口调用的地方的实现与之前保存一致。这样，界面资源的生命周期全部交由脚本层来管理，在脚本构建一个结构合理功能齐全的UIManager来进行一些功能的封装，就可以满足大部分的需求。</p>
+<h2 id="3-3-LuaBehavior的改造"><a href="#3-3-LuaBehavior的改造" class="headerlink" title="3.3 LuaBehavior的改造"></a>3.3 LuaBehavior的改造</h2><p>MonoBehavior是Unity为了放便开发而提供的一个很好的功能，脚本以组件的方式挂接在GameObject身上，就可以在Awake、Start、Update等接口中处理想要的逻辑。为了能够继续使用Unity的这一特性，在Lua层也实现了一个简单的LuaBehavior封装。<br>KSFramwork中的思路非常简单，同样根据名称来把一个LuaBehavior和一个Lua脚本进行绑定，在对应的逻辑中调用与之对应的接口就可以了。比如Awake接口的实现如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">protected virtual void Awake()</span><br><span class="line">&#123;</span><br><span class="line">    if (!string.IsNullOrEmpty(LuaPath))</span><br><span class="line">    &#123;</span><br><span class="line">        Init();</span><br><span class="line">        CallLuaFunction(&quot;Awake&quot;);</span><br><span class="line">    &#125; // else Null Lua Path, pass Awake!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>CallLuaFunction</code>的实现也很明确，从缓存的lua table中获取名称为Awake的function进行调用。这种方式没有问题，但是当场景中挂载了LuaBehavior的GameObject很多的时候，每一帧都会有非常多次的update方法调用，这个调用从C#层传递给Lua层，有很多额外的性能消耗。<br>前文也提到了，比较好的方式是每帧只有一个C#到Lua层的Update方法调用，然后脚本层自己做分发。因此，针对这一需求，我们使用ToLua#自带的LuaLooper来实现这一功能。<br>LuaLooper是全局只创建一个的MonoBehaviour，注意这里只创建一个是由逻辑来决定的，而不是一个单例模式。这里针对单例模式适用场合的讨论不再展开，此处由逻辑来保证只有一个Looper存在是一件比较合理的事情，预留了一些扩展的可能。<br>LuaLooper以事件的方式将三种Update分发出去：Update、LateUpdate、FixedUpdate，它在自己对应的函数中调用luaState的对应函数来将事件告知脚本，脚本中需要的模块向分发模块注册回调来监听事件，就可以做到每帧只有一次Update调用了。<br>具体的代码实现可以去看ToLua#中的LupLooper.cs的类实现。</p>
+<blockquote>
+<p><strong>注意</strong> 这里有一个需要小心的点是当事件在脚本层分发的时候，要注意执行时序问题的影响，最好能够保证任意的执行顺序都可以不影响游戏逻辑的结果，否则可能会出现很难查的诡异bug。</p>
+</blockquote>
+<p>对于Awake、Start等一次性调用的函数，由于不是频繁的逻辑，因此保留了原始的实现方式，这样可以让Lua层对应的代码实现更加简洁。而使用事件注册的方式，让不需要update逻辑的脚本没有任何额外的性能消耗。</p>
+<h2 id="4-结语"><a href="#4-结语" class="headerlink" title="4. 结语"></a>4. 结语</h2><p>只有上述的这些部分，对于开发一款商业游戏来说还远远不够，但是通过导出的接口和对于KSFramwork的一些改进，已经可以实现一个简单的由Lua层来驱动的Demo了，它可以加载场景，打开一个打包成AssetBundle的界面，设置界面上的控件属性，为按钮添加一些回调时间，然后切换场景，加载一些打包在AssetBudnle中的Prefab模型。<br>这是Lua初步集成的结束，也是在这款游戏中创造万物的开始。</p>
+<p>2016年10月18日凌晨于杭州家中</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/07/11/pythonadvance6/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Python进阶(六)</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="unitydev1" data-title="Unity手游开发札记——Lua语言集成" data-url="http://inarrater.com/2016/10/18/unitydev1/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"inarrater"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2016 董夕
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+</body>
+</html>
