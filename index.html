@@ -107,7 +107,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/Python/" style="font-size: 15px;">Python</a> <a href="/tags/开发/" style="font-size: 20px;">开发</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
+						<a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/Python/" style="font-size: 15px;">Python</a> <a href="/tags/开发/" style="font-size: 20px;">开发</a> <a href="/tags/总结-性能优化/" style="font-size: 10px;">总结, 性能优化</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
 					</div>
 				</section>
 				
@@ -172,6 +172,165 @@
 </nav>
 
       <div class="body-wrap">
+  
+    <article id="post-unitydev2" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/11/27/unitydev2/" class="article-date">
+  	<time datetime="2016-11-27T09:52:53.000Z" itemprop="datePublished">2016-11-27</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/11/27/unitydev2/">MMO游戏优化经验分享沙龙总结</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>今天去上海参加了UWA公司的张鑫和张强进行了一场关于MMO游戏开发和性能优化的沙龙，活动链接为：<a href="http://blog.uwa4d.com/archives/Openday1126.html" target="_blank" rel="external">UWA优化日上海站|传统MMO手游性能该如何突围？</a>。虽然第二场场景分块加载部分的内容没有预期中对目前的项目那么有帮助，再加上最后因为赶火车没有听完Q&amp;A的环节就离开了（然而还是没有赶上火车，此中悲苦就不提了。。。），有些疑问没有提出来讨论，略有遗憾，但对于我这样一个刚刚接触Unity的新兵来说，收获颇丰。因此这里做一个简单的记录和整理，只包含现场讨论我印象比较深的一些点，与讲座内容的顺序没有直接对应关系，更加详细、条目性的内容可以参考官方放出的正式文档。</p>
+<h2 id="0-关于UWA"><a href="#0-关于UWA" class="headerlink" title="0. 关于UWA"></a>0. 关于UWA</h2><p>张鑫博士介绍了UWA成立这一年多时间内做过的事情，我还是比较赞赏有组织在做这件事情的，可以说是Unity引擎和用户之间除了官网文档和官网技术支持之外的一座桥梁。虽然说他们目前的存在价值和盈利方式依赖于Unity引擎和这样一个生态圈，但是对于程序员来说，它们比单纯的引擎部门接近游戏产品，和做产品的比又更纯粹，没那么功利，介于两者之间。如果有合适的机会我还是挺想做一做这样的事情的，哈哈~</p>
+<p>目前来说，能有这样的一群人帮忙提供一些技术上的分享，一些坑可以拿出专门的时间和精力去踩和分析，对于没有引擎组的小团队来说是非常好的事情。</p>
+<p>张鑫博士提到他们提供热更新方案，会后单独问了一下还是只支持Android的版本，Lua方案的热更新还没有人力去做。希望后面可以有人力来做一些这方面的踩坑和性能优化工作……</p>
+<p>##1. UI系统中的Mesh重建</p>
+<p>在UI系统的优化中，着重提到了Mesh重建的过程，这通常是一个消耗最大的部分，因此也是优化需要关注的重点。在NGUI中，这一过程发生在Panel的LateUpdate函数中——由于NGUI是插件的形式，因此这一过程是在C#中的，每次需要改变渲染网格时都会销毁内存中的mesh进行重建操作。而对于UGUI来说，这一过程是在Cavas的BuildBatch中进行的，已经被封装成了Native的实现，因此在UGUI中这部分<strong>没有额外的堆内存分配</strong>，这也是UWA官网把UGUI在运行时分配的堆内存大小标准定义为小于2M，而NGUI的建议标准是小于20M的核心原因。</p>
+<p>那么，如何降低UI系统中Mesh重建的次数呢？主要从以下两点出发：</p>
+<blockquote>
+<ul>
+<li>当ui发生改变，比如有组件的添加、删除、遮挡关系改变等事情发生的时候会需要重建Mesh，<strong>而当ui的transform发生改变的时候，如果不影响原本的遮挡关系，是不会导致Mesh重建的过程的</strong>。</li>
+<li>UGUI中Mesh的重建的<strong>基本单位是Canvas</strong>。</li>
+</ul>
+</blockquote>
+<p>上述两点分别对应两个优化思路：</p>
+<blockquote>
+<ul>
+<li>尽量减少Mesh重建发生的次数；</li>
+<li>当一定需要Mesh重建的时候，尽量减少Mesh重建影响的范围；</li>
+</ul>
+</blockquote>
+<p>针对第一点，除了不要进行不必要的ui修改操作之外，<strong>对于需要频繁切换的复杂界面</strong>，张鑫博士给出的建议是：</p>
+<blockquote>
+<p>“不要使用实例化/销毁操作来实现界面的切换，会有很大的额外开销，对于active/deactive操作来说也会有mesh重建的过程。推荐通过将其坐标移出视窗之外，或者通过Camera的Layer机制来隐藏界面这两种方式具有最好的性能效果。”</p>
+</blockquote>
+<p>一个使用案例是背包界面，有大量的item，创建过程消耗也会很大，如果内存允许的话，使用上述方法会有最小的性能开销。</p>
+<p>而尽量减少Mesh重建影响的范围则对应一个基本原则——<code>动静分离</code>，即把不需要动态改变和需要频繁地动态改变的组件分离出来。按照上述的第二点，可以使用canvas进行<code>动静分离</code>。就是说比如某个组件下面挂的东西是一个会动态变化的部分，那就把它独立成一个canvas。比如仍然以背包界面为例，滑动内容会导致界面的变化，在滑动过程中每帧都会有Mesh的重建操作。把滚动的部分做成单独的Canvas，这样背景图片和标题等部分就不会被每帧重建了。</p>
+<p>这里需要着重注意的是一些会频繁改变的动态部分，比较容易遗忘，比如聊天中的<strong>动态表情，角色坐标信息</strong>的显示等部分，在开发过程中需要着重注意。</p>
+<blockquote>
+<p>这里我的一个疑问是如果划分过细，过多的Canvas是否会导致UGUI有额外开销？比如是否不同Canvas上的界面元素即使使用Batch后的图，也无法合并Draw Call？这是在开发中需要注意权衡的一个点。</p>
+</blockquote>
+<p>之前有讨论过<code>动静分离</code>的概念，但是进行分离的基本规则和原理并不是很清楚，张鑫博士的沙龙从性能分析的具体数据出发，结合具体函数的作用，讲解得清晰透彻。<br>另外有几点关于ui优化的笔记：</p>
+<blockquote>
+<ul>
+<li>NGUI中UITexture不会被合并，建议使用UISprite；（我们项目目前使用UGUI，因此NGUI的不是很熟悉，不知道UGUI中有没有无法合并的控件？）</li>
+<li>UI应该尽量避免重叠，尤其是看上去不重叠但是实际上有半透区域存在重叠，会导致Unity不进行合并操作，增加Draww Call数量。</li>
+<li>在Unity 5.2之后的版本中，ui控件的z值不为0的情况下不会进行合并。（不知道这是为了解决遮挡或者什么问题而修改的<code>特性</code>，还是Bug，在制作的时候注意一下，尤其是做角色的3D血条有深度更改需求的情况下。）</li>
+<li>背包界面的优化中提到了<strong>PixelPerfect的设置</strong>，这是一个对齐像素的效果可以让字体等显示的效果更好，比如在背包内容滚动的时候，每帧都会有比较大的消耗在这上面，可以<strong>考虑关闭掉</strong>。</li>
+<li>UI中Mesh需要的顶点数量如果可以控制在<strong>1000以内</strong>，Mesh合并的效率就会比较好。过多的顶点数量在全部是静态的情况下问题不大，但是一旦涉及到动态界面就会造成卡顿。</li>
+<li>UI部分的Draw Call建议控制在<strong>20~30之间</strong>，是一个比较理想的情况。</li>
+</ul>
+</blockquote>
+<h2 id="2-血条优化案例"><a href="#2-血条优化案例" class="headerlink" title="2. 血条优化案例"></a>2. 血条优化案例</h2><p>UWA做了一个血条性能分析的Demo，也是和UI有关。</p>
+<p>通常MMO游戏中血条会比较多，比如一些PVP或者PVE玩法中，血条会有几十个甚至上百个，他们会随着怪物的死亡等消失，又会随着新的怪物产生而重新出现。这里需要注意的点有如下几个:</p>
+<blockquote>
+<ul>
+<li>通常比较直接的思路是创建一个缓冲池，用完丢回去，需要的时候先冲池子里拿。这里依然会有一些性能问题，因为放回缓冲池的操作和重新放回场景中的操作会有SetParent的过程，在UGUI中这一过程会导致控件进行一系列的初始化操作，造成卡顿等问题。UWA的建议是使用移除视窗之外的操作来代替SetParent操作，可以提升性能。</li>
+<li>在掉血跳字等字体的部分美术同学喜欢使用Outline等效果，一次Outline对于一个字来说会多绘制上下左右4遍，因此对于内容可控的部分建议直接使用 <strong>静态字体</strong>。</li>
+<li>对于频繁出现又消失的战斗提示信息等部分，可以使用<code>.text = ”“</code>的赋值操作，即把文本的内容赋值为空的方式来代替Active和Deactive。</li>
+<li>如果血条非常多的情况下，可以考虑拆分成多个Canvas，会有一些意想不到的优化效果。UWA做测试观察到现象是每个Canvas的性能消耗与其中的血条数量不是成正比的，而是一种超线性的关系，这可以理解，在每一控件都可能发生变化的情况下，需要重建整个Canvas，那这是一个n*n的关系。（当然说是n^2的关系也不准确，因为每帧改变1个和改变n个都只会重建一次，但是从统计概率上来说，数量越多，每帧需要进行Mesh重建的概率就越大，重建消耗也是越大的，因此是超线性的。）这里还是一个需要进行Draw Call和重建消耗的折中考虑的点。</li>
+</ul>
+</blockquote>
+<h2 id="3-多线程渲染"><a href="#3-多线程渲染" class="headerlink" title="3. 多线程渲染"></a>3. 多线程渲染</h2><p>多线程渲染是我在网易的时候跟过的一个大坑。。。当然不是我做的开发，而是我们项目比较早在使用引擎组做的这一功能，从集成过程到做兼容性测试遇到过很多问题，比如某些设备上莫名其妙的Crash。</p>
+<p>张鑫博士说他们从他们的经验来看，Unity 5.3版本之后多线程渲染的功能已经是一个比较稳定的版本了，现在已经有正在运营的项目在开启多线程渲染。因此整体上还是可以比较放心地开启的。多线程渲染对于PostEffect的提升效果很大，他们做了一个测试可以让CPU消耗从平均20ms降低到平均2ms，也有项目开始之后出现顿卡。</p>
+<p>与之前了解的一样，开启多线程渲染之后的性能提升效果根本上和是CPU瓶颈还是GPU瓶颈有关，不同设备效果不同，不同游戏的瓶颈也不同，因此要各个项目自己测试来看，因此UWA官方的说法是——</p>
+<blockquote>
+<p>”推荐各个项目<strong>尝试开启</strong>。“</p>
+</blockquote>
+<p>这部分提到如果在观察Profile面板时发现WaitingForJob很高，就说明CPU在等子线程，就已经有性能问题了，当出现PutGeometryJobFence的时候，性能问题就已经很严重了。</p>
+<h2 id="4-动态阴影的技术方案"><a href="#4-动态阴影的技术方案" class="headerlink" title="4. 动态阴影的技术方案"></a>4. 动态阴影的技术方案</h2><p>MMO开发中角色阴影已经成为了一个标配，UWA经过测试，Unity官方的Build-in ShadowMap的性能还是最好的，推荐使用，只是效果相对差，而且在Mobile设备上无法支持原生的软影（存疑，需要自己测试一下效果）。</p>
+<p>而Projector的实现方式比较适合只有一个角色需要阴影的情况，推荐了两款插件：</p>
+<blockquote>
+<ul>
+<li>Fast Shadow Projector 只支持静态物体；</li>
+<li>Fast Shadow Receivor 可以将接受阴影的物体拆分出需要阴影的独立的mesh，提升渲染速度，可以支持柱子这样非平面的物体。</li>
+</ul>
+</blockquote>
+<p>阴影这块是我们项目目前要研究的重点内容之一，我们在考虑全部动态阴影的方案来部分替代烘焙的LightMap。这部分市面上的产品只观察到韩国的两款Unreal的手游这么来做，之前在网易内部使用Forward Lighting一直都是烘焙的方案。这块如果有朋友了解什么信息还希望不吝赐教~</p>
+<h2 id="5-资源的同步和异步加载"><a href="#5-资源的同步和异步加载" class="headerlink" title="5. 资源的同步和异步加载"></a>5. 资源的同步和异步加载</h2><p>这是比较有意思的一块内容，之前的思路一直都是大部分情况下统一使用异步加载，只有在明确知道资源非常小，而且不重要的模块使用同步加载的方案，比如一个只有几个面的dummy model之类的。</p>
+<p>UWA给出的建议是：在Loading界面中，如果需要表现平滑的加载进度和加载界面的话，可以使用同步加载，其他的过程中使用异步加载。原因是——</p>
+<blockquote>
+<p>”我们观察到，在对于同一个资源，同步加载比异步加载所花费的时间要少很多。异步加载会把任务拆分成比较小的粒度到每帧执行，但是在设备上每帧33ms的时间中，往往用不了这么久异步加载任务就执行完毕了，比如16ms甚至更少的时间，这就导致了无谓的等待。”</p>
+</blockquote>
+<p>如果觉得加载时间过长，而对于加载过程中的玩家体验不需要过多关注的项目可以参考这一思路。这的确是我之前的经验所没有包含的部分。</p>
+<p>另外，在Unity中，对于异步加载来说，也可能会造成顿卡，因为不是所有的过程都是异步的。IO部分可以做到完全异步，但是内存中的初始化的部分过程可能仍然是同步的，比如一张1024<em>1024大小的贴图异步加载，通常设备上都会可以感受到卡顿，因此建议<em>*大于这个尺寸的贴图统一进行预加载</em></em>。</p>
+<p>与此相关的还有一个Unity的小知识。Unity默认每帧给2ms的时间让CPU拷贝内存东西到GPU中，比如贴图、网格顶点等，默认的Buffer是4M大小，因此这里也会影响资源加载到最终渲染到屏幕上的时间。这两个参数是可以调整的，具体接口参考官方文档。另外默认4M正好是一张32位的1024<em>1024大小的贴图大小，如果使用了2048</em>2048或者更大的贴图格式，这个Buffer会增大为对应的大小，并且不会在缩小回来。因此建议资源中的最大尺寸可以给一个定义，尽量不要出现只有偶尔几张贴图使用非常大的尺寸的情况。</p>
+<h2 id="6-动画模块的优化"><a href="#6-动画模块的优化" class="headerlink" title="6. 动画模块的优化"></a>6. 动画模块的优化</h2><p>除了常规的降低骨骼数量和动画曲线数量之外，Unity 5.2之后提供了一个culling Group的功能，用在模型位置一直绑定一个球的方式做碰撞体来优化判定，不在视锥范围的的物体不进行Animator的Update。这一功能主要针对脚本逻辑的Update，Animator没有提供单独的接口根据距离来控制Update频路，一个可行的思路是自己重写其Update接口，然后传入更高的Delta Time来模拟降频的功能。不过以我之前用Havok的降频功能来做性能对比的话，除非角色数量非常高，否则这部分骨骼骨骼的更新的优化空间不是非常大，不过Unity这块具体的数据要进行测试才知道。</p>
+<p>Animator中有一个Optimize Game Objets的选项，可以降低Update的消耗，UWA建议使用。这是因为默认情况下每根骨骼都是一个GameObject，每帧骨骼更新之后会需要修改它们的Transform。</p>
+<blockquote>
+<p>“当打开这个选项，导入的角色中的游戏对象transform hierarchy将会被移除，而且以Avatar and Animator组件替代。<br>角色的SkinnedMeshRenderer将会直接使用Mecanim内部骨骼，因此我们能摆脱所有用于描述骨头的Transform。<br>这个选项将提升动画角色的性能，推荐最终产品开启这个选项。优化模式下，皮肤网格模型的抽取也是多线程的。<br>当开启了这个选项，用户能在ModelImporter inspector中指定“Extra Transforms to Expose”的列表。例如，如果你想附加一把剑道右手，这是一个挂载点。暴露的transform在游戏对象的hierarchy中是平行的，不管它在骨架视图中的深度”</p>
+</blockquote>
+<p>对于Animator的Active和Deactive的操作有很大的性能消耗，这在之前斗鱼上的直播中已经提到过了，这里还是像ui一样，建议将角色移出视窗之外的方式来进行缓存，或者只把组件Active和Deactive，来提升性能。</p>
+<h2 id="7-其他的小tips"><a href="#7-其他的小tips" class="headerlink" title="7. 其他的小tips"></a>7. 其他的小tips</h2><p>除了上述的一些问题之外，还有一些比较了零碎的笔记，不进行赘述，只记录如下：</p>
+<blockquote>
+<ul>
+<li>渲染面数建议控制在10w面一下，这是目前经过大量测试性价比比较高的一个点，5w-10w面测试看下来差别不是很大，Draw Call数量建议控制在200-300以内，比较好的情况是在100以下。</li>
+<li>粒子系统通常需要加载的资源很多，但是初始化过程比较消耗CPU，因为通常一个粒子系统中的Component很多，建议进行预加载。</li>
+<li>粒子系统中的PreWarn选项会在后台进行一次完整周期的模拟，因此使用可能会有卡顿。</li>
+<li>Skined Mesh引擎是不会进行合并的，MeshBaker插件可以减低Draw Call数量，对于动态的物体也可以，但是会影响裁剪，而且动态添加和删除很慢，通常用于ARPG游戏中的优化，MMO较为少用。</li>
+<li>注意创建Mesh和Material的拷贝过程，比如修改一个Material的参数，会创建一个新的Material对象，频繁地执行这样的操作会有泄漏出现，推荐使用DynamicMaterial，缓存然后只修改这一个动态材质的方法。</li>
+</ul>
+</blockquote>
+<h2 id="8-大世界场景拆分和动态加载"><a href="#8-大世界场景拆分和动态加载" class="headerlink" title="8. 大世界场景拆分和动态加载"></a>8. 大世界场景拆分和动态加载</h2><p>这一部分是张强同学做的讲座，基于地形的方式实现了的大世界动态加载功能。其实这部分本来是我期望去听和讨论的部分，以为我们项目正好在进行这块的技术预研，但是我们不是使用地形，而是基于静态Mesh，另外视角我们更倾向于平视而非2.5D，因此这部分对于我们的帮助没有想象中的大。</p>
+<p>我个人觉得这部分的一个问题是整个工程是基于一个Demo性质的实现，而非正式的项目，因为时间关系没有在后面进行深入的交流，因此也不清楚目前的实现是否在正式的项目中应用了。一些应用方面的疑问其实讲座正文中没有讲到：</p>
+<blockquote>
+<ul>
+<li>结合到美术制作，地块的拆分建议遵循的原则是什么？比如多少个屏幕范围划分为一块比较合理？</li>
+<li>如果使用lightmap的方案，两个地块交接处是否会有问题，比如交界处左侧有一座山，它的投影可能会在另外一个拆分后的地块上，如果拆分后再Bake，是否有解决方案可以处理这样的问题？</li>
+<li>如果使用平视视角，目前有没有什么比较好的解决方案？LOD的话有哪些注意事项？</li>
+</ul>
+</blockquote>
+<p>这部分可以直接参考官方给出的PPT，我做的笔记不太多，这里只放了一些没有来及提出的问题，幸好加了两位主持人的微信，回头整理好问题再一并请教，有答复了再修改本文。</p>
+<h2 id="9-总结"><a href="#9-总结" class="headerlink" title="9. 总结"></a>9. 总结</h2><p>这次上海之行，一天时间往返上海杭州，只为了这两场讲座。从收获来说，虽然和预期稍有不同，但是还是很值得的。感谢张鑫博士和张强同学两位主持人的分享，你们辛苦啦~也感谢UWA公司组织这样免费的技术沙龙，祝愿贵公司越来越好~~</p>
+<p>2016年11月27日于杭州家中</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/总结-性能优化/">总结, 性能优化</a></li></ul>
+	</div>
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
   
     <article id="post-unitydev1" class="article article-type-post" itemscope itemprop="blogPost">
   
