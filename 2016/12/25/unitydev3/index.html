@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>Unity手游开发札记——从零开始搭建手游开发的工具集 | Narrater</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="从8月中旬到现在12月底，四个多月的时间，经历团队组建、引擎熟悉、基础工作流搭建、核心Demo开发以及一些技术预研的工作，这其中的每一项拿出来都可以写出一篇文章。之前已经聊过一些Unity和Lua相关的技术，今天就主要聊一聊不那么技术的部分——对于一个从零开始组建的小团队，游戏开发的一些基础的工作流程和协作工具，希望可以帮助后来人节省部分时间，也抛砖引玉，想了解下其他团队中有什么更好的解决方案~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unity手游开发札记——从零开始搭建手游开发的工具集">
+<meta property="og:url" content="http://inarrater.com/2016/12/25/unitydev3/index.html">
+<meta property="og:site_name" content="Narrater">
+<meta property="og:description" content="从8月中旬到现在12月底，四个多月的时间，经历团队组建、引擎熟悉、基础工作流搭建、核心Demo开发以及一些技术预研的工作，这其中的每一项拿出来都可以写出一篇文章。之前已经聊过一些Unity和Lua相关的技术，今天就主要聊一聊不那么技术的部分——对于一个从零开始组建的小团队，游戏开发的一些基础的工作流程和协作工具，希望可以帮助后来人节省部分时间，也抛砖引玉，想了解下其他团队中有什么更好的解决方案~">
+<meta property="og:updated_time" content="2016-12-25T15:00:05.540Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Unity手游开发札记——从零开始搭建手游开发的工具集">
+<meta name="twitter:description" content="从8月中旬到现在12月底，四个多月的时间，经历团队组建、引擎熟悉、基础工作流搭建、核心Demo开发以及一些技术预研的工作，这其中的每一项拿出来都可以写出一篇文章。之前已经聊过一些Unity和Lua相关的技术，今天就主要聊一聊不那么技术的部分——对于一个从零开始组建的小团队，游戏开发的一些基础的工作流程和协作工具，希望可以帮助后来人节省部分时间，也抛砖引玉，想了解下其他团队中有什么更好的解决方案~">
+  
+    <link rel="alternative" href="/atom.xml" title="Narrater" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">董夕</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">讲述，而非记录</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+					        
+								<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+					        
+								<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/Python/" style="font-size: 15px;">Python</a> <a href="/tags/工具/" style="font-size: 10px;">工具</a> <a href="/tags/开发/" style="font-size: 20px;">开发</a> <a href="/tags/性能优化/" style="font-size: 10px;">性能优化</a> <a href="/tags/总结/" style="font-size: 10px;">总结</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">程序员，对故事有爱，想要有趣的人生。</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">董夕</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+			
+				<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+			</div>
+			<hgroup>
+			  <h1 class="header-author">董夕</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">讲述，而非记录</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+			        
+						<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap"><article id="post-unitydev3" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/12/25/unitydev3/" class="article-date">
+  	<time datetime="2016-12-25T14:59:07.000Z" itemprop="datePublished">2016-12-25</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Unity手游开发札记——从零开始搭建手游开发的工具集
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/工具/">工具</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>从8月中旬到现在12月底，四个多月的时间，经历团队组建、引擎熟悉、基础工作流搭建、核心Demo开发以及一些技术预研的工作，这其中的每一项拿出来都可以写出一篇文章。之前已经聊过一些Unity和Lua相关的技术，今天就主要聊一聊不那么技术的部分——对于一个从零开始组建的小团队，游戏开发的一些基础的工作流程和协作工具，希望可以帮助后来人节省部分时间，也抛砖引玉，想了解下其他团队中有什么更好的解决方案~</p>
+<h2 id="1-为什么需要"><a href="#1-为什么需要" class="headerlink" title="1. 为什么需要"></a>1. 为什么需要</h2><p>商业游戏的开发是一个大工程，需要参与的职位很多——策划、程序、美术、QA、营销、外包等等，每一个职位的人也不少，比如策划团队可能会有6-7人，程序团队可能会在10人以上，还会区分客户端与服务端。要想让游戏开发的工作可以更好更快地推进，确保每个职位之间和内部的协作都是顺畅的，需要工作流的精确定义和强大工具的支持。</p>
+<p>在游戏开发中，程序的职责不仅仅是实现游戏玩法逻辑，构建合理的工作流程和开发强力的工具集也是工作的一部分。这一部分内容可能无法体现在最后发布的游戏中，但是在保证项目按时完成，提升整个团队的工作效率方面却具有非常重大的意义。</p>
+<p>在大公司中，这部分内容会由IT、运维等其他部门的同事提供，但是在一家小公司，一切只能自己动手。作为程序组的负责人，特别是最初只有我一个程序的情况下，这份看上去<em>只是进行一些工具调研，然后部署</em>的工作就毫无疑问地落在了我的身上。实话实说，相对于实现一个有意思的玩法，这个过程的确有些枯燥无趣，但回头来看，这些工作让整个团队可以顺利地推进工作，沉淀知识，反思问题，也是一种成就感。</p>
+<h2 id="2-包含哪些内容"><a href="#2-包含哪些内容" class="headerlink" title="2. 包含哪些内容"></a>2. 包含哪些内容</h2><p>这里涉及到的绝大部分工具都是不自己开发的，而是对于世面上已有的工具的试用和选择。本文也不进行深入的技术探究，只从自己团队需求的角度出发，记录这些工具的选择过程和决策原因。涉及的部分包括沟通工具、知识分享、版本管理、项目协作与管理、自动化构建工具、编辑器和部分程序开发工具这几个方面。</p>
+<h2 id="3-沟通工具"><a href="#3-沟通工具" class="headerlink" title="3. 沟通工具"></a>3. 沟通工具</h2><p>在团队组建的最初，我们只有一个微信群来进行沟通。在搬进新的工作地点之后，公司正式成立，就需要确定对内和对外使用的沟通工具。这部分内容看上去非常简单，但也有很多值得思考的内容。</p>
+<h3 id="3-1-邮件服务"><a href="#3-1-邮件服务" class="headerlink" title="3.1 邮件服务"></a>3.1 邮件服务</h3><p>邮件服务作为一个最为正式的沟通工具，无论是对内还是对外，都需要可以正常使用。可以进行的选择是自己搭建一个邮件服务器还是使用比如腾讯或者阿里这样大公司提供的企业级邮箱。在经过一些调研、对比和讨论之后，出于对邮件内容安全性的考虑，我们选择了自己搭建的方式。<br>使用<strong>MDaemon</strong>作为邮件服务器，申请了公司的域名，购买了阿里云的主机，搭建过程交给了一个朋友帮忙（所以不要问我是不是破解版，我不会回答的。。。），目前的工作方式是我自己远程上去手动维护邮件账户和列表。（这有点蛋疼，但不频繁还可以忍受…）<br>客户端我们没有强制规定，但大部分使用了网易的闪电邮，这完全是习惯使然，其中的日历和会议邀请功能还是很实用的。</p>
+<h3 id="3-2-即时通讯工具"><a href="#3-2-即时通讯工具" class="headerlink" title="3.2 即时通讯工具"></a>3.2 即时通讯工具</h3><p>每个团队都需要IM工具，在网易的时候使用的是POPO，但是作为一个对外好久没有更新的工具，而且是“老东家”的产品，有点怕。我们调研了Slack、钉钉、微信企业版，考虑了QQ，最终选择了钉钉。我个人很喜欢Slack这一类型的IM工具——使用频道代替群的概念，信息永久保存、可以修改搜索消息，这些设计减少了水群的存在，也让沟通的人说话更加谨慎高效。</p>
+<p>但是，Slack没有中文版本，询问了一下开发者，貌似近期也没有推出的计划，而国内几个小团队做的相似版本不太敢去用，怕哪天倒闭了聊天内容都没办法导出来。相比之下，虽然钉钉有很多我个人不喜欢的地方——譬如“钉一下”的概念是为老板服务的——我们还是无奈选择了它，有如下几个原因：</p>
+<ol>
+<li>带有简单的OA，比如部门管理、签到、审批，这些是我们初期需要但又不想花太多时间去开发新的内容；</li>
+<li>有比较完备的桌面版和移动版；</li>
+<li>使用方式还是比较常规的方式，适合策划和美术上手；</li>
+<li>有Open API提供，可以进行一些工具的开发；</li>
+<li>阿里“爸爸”怎么说也是家大公司，倒掉的概率比较小。。。对于我们这种小团队的信息也懒得偷看（迫害妄想症）。。。</li>
+</ol>
+<p>当然用了这几个月也有很多槽点想吐：</p>
+<ol>
+<li>完全没办法图文混排，美术吐槽这点吐槽了好久；</li>
+<li>传输文件不是点对点的方式，而是上传然后再下载，也无法传输文件夹，我们现在局域网传输都不用它了，嫌慢又怕外泄；</li>
+<li>出于安全的考虑，Open API不开放获取聊天信息的接口，导致我们现在一些想做的便捷功能没办法做；</li>
+<li>我只把它当做一个IM工具，不想钉别人，也不想被别人钉……（纯吐槽）</li>
+</ol>
+<p>总之，小而精的团队，可以尝试下Slack~~</p>
+<h3 id="3-3-现场沟通"><a href="#3-3-现场沟通" class="headerlink" title="3.3 现场沟通"></a>3.3 现场沟通</h3><p>对于小团队来说，吼一嗓子，或者跑到位置上去聊，可能是最为快速高效的工作方式了。这不需要任何工具，只是有时候需要提醒注意讨论对于其他人工作效率的影响，比较长或者涉及人比较多的讨论还是建议去会议室进行。但最好进去之前明确讨论主题，注意讨论时间，否则很容易错过饭点。。。（流泪）</p>
+<h2 id="4-知识共享"><a href="#4-知识共享" class="headerlink" title="4 知识共享"></a>4 知识共享</h2><p>团队开发需要知识共享，一些规范也需要让别人可以方便地查找，对于后进入团队的人，也可以尽快熟悉规范，避免一些坑重复去踩。因此我们需要一些知识和文件共享的方式。</p>
+<h3 id="4-1-文件共享"><a href="#4-1-文件共享" class="headerlink" title="4.1 文件共享"></a>4.1 文件共享</h3><p>文件共享分为两种，不需要版本控制的我们使用了FTP的方式，购买了一台windows server的服务器放置在了内网，然后直接使用了系统自带的FPT服务，用于文件共享和一些内网的文件传输中转，简单粗暴。<br>需要版本控制的文件，比如策划文档，我们使用了SVN进行管理。</p>
+<h3 id="4-2-文档共享"><a href="#4-2-文档共享" class="headerlink" title="4.2 文档共享"></a>4.2 文档共享</h3><p>基本上是出于个人习惯的考虑，文档共享方面推荐团队使用了<a href="https://www.yinxiang.com/" target="_blank" rel="external">印象笔记</a>。一开始团队中有人吐槽它没有文件夹管理太难用，其实我觉得Tag的方式比文件夹更加方便合理。当然也有一些不方便的地方：</p>
+<ol>
+<li>无法支持两个人同时编辑一份文档，甚至一个人看的时候光标只要在文档内就会把文档锁定别人无法修改。当时考虑了一下<a href="https://shimo.im/" target="_blank" rel="external">石墨文档</a>，但是没有推广去用，需要的朋友可以去看下。</li>
+<li>对于Markdown的支持不够好，排版太难看。。。叹气。<a href="https://maxiang.io/" target="_blank" rel="external">马克飞象</a>虽然可以用，收费不说，还不能在印象笔记中修改，怎么共同编辑，摔。</li>
+<li>美术不乐意用，嫌弃说都是文字不够直观……这个我也没办法，手动摊手。</li>
+</ol>
+<p>知识共享和记录是一件非常重要的事情，前两天就遇到部署Jenkins的时候没有做记录，然后重启机器遇到问题忘记怎么弄又捣鼓半天的事情。年纪大了，事情多了，脑袋不好使了，烂笔头更重要了。更何况，很多东西是规范性的，需要其他职位的人遵守，口头的约定总是会忘记或者记不清楚，落实到文字上才更有约束力。</p>
+<h2 id="5-版本管理"><a href="#5-版本管理" class="headerlink" title="5 版本管理"></a>5 版本管理</h2><p>前面提到了，策划文档使用了SVN管理，游戏工程也是选择了SVN，原因是团队大部分成员习惯了SVN的使用。如果只有程序团队使用，可能就去推行Git了，但是想想要给美术和策划培训Git，还有解释本地版本和服务器版本的概念就头疼。在刚进入网易的时候有一段时间是跟着美术处理各种svn冲突，clean up无效等问题，深深体会到svn和git这种按照程序员理性思维建立的工具，感性的美术需要花挺多精力去理解。</p>
+<h3 id="5-1-外链问题"><a href="#5-1-外链问题" class="headerlink" title="5.1 外链问题"></a>5.1 外链问题</h3><p>在工程中，避免不了的是有些目录需要同时出现在多个地方，比如客户端与服务端可能会共用一份数据文件，当数据修改的时候，在多处进行修改是不合适的做法，维护起来很麻烦。于是版本管理软件提供了外链的功能，比如svn的externals。但是外链有一个很严重的问题是当你需要建立分支的时候，如果不做任何修改，外链还会是指认到原始trunk上的路径，当外链很多的时候，就需要针对每个外链单独建立分支，然后修改整个分支中所有外链的路径到正确的分支位置去。在项目后期，需要编写一个单独的脚本来进行分支的创建，而不是一条简单的cp指令就可以了。与外链相对应的是所谓的“内链”，即路径不再是一个以https或者svn开头的全地址路径，而是一个类似<code>../../../CommonData</code>这样的相对路径。这样，只要保证分支是在根目录创建的，内链就是分支内部的路径，不需要做任何额外的修改。当然，内链无法跨svn repository运作，如果是另外一个svn repository的内容，只能使用外链的方式。<br>SVN的这部分构建和设计工作最好在项目初期做好规划，否则后期进行分支维护的时候会比较麻烦，容易出错。</p>
+<h3 id="5-2-工具使用"><a href="#5-2-工具使用" class="headerlink" title="5.2 工具使用"></a>5.2 工具使用</h3><p>SVN服务使用了最为简单的VisualSVN Server，带有gui，方便易用，目前比较恶心一点的是为别人创建账号的时候密码输入只能在界面上进行，暂时没时间调研更好的工具来自己创建账号。<strong>权限的分配完全按照Group进行，从不单独针对某一个账号进行权限分配</strong>，这点是在网易的时候维护SVN权限时老大强调的一点，方便，不容易出错。虽然是小团队，但是SVN的权限管理还是要做好，否则代码泄露出去隐患还是很大的。</p>
+<p>SVN服务端的Hook目前只加了两个：</p>
+<ol>
+<li>不允许提交过短的log，强制防止有人偷懒不写log；</li>
+<li>允许log被提交者自己编辑。</li>
+</ol>
+<p>客户端基本推广的是小乌龟，Mac和Linux就使用命令行。美术同学有人喜欢装一个中文语言包，就按照各自的喜好去用。这里有几个小Tips提供给不太熟悉小乌龟的人：</p>
+<ol>
+<li>按住Shift点击右键，弹出的svn菜单里会多一些比如“删除不再版本控制下的文件”这样的快速选项；</li>
+<li>在Settings中，Main Context Menu中可以添加常用的菜单选项，比如revert、Show Log，这样就不需要进入SVN的二级菜单了；</li>
+<li>如果在update的时候，有更新的文件被比如3DS Max、Photoshop等软件打开着的时候，可能会出现被锁死的情况，这时候提示你要进行Clean up操作，在关闭了相应软件之后，如果Clean up仍然失败，可以尝试使用如下的代码来解决。如果仍然不行，可以只删除掉.svn文件，然后重新check out，这样既可以保留已有的修改，又可以避免下载所有的文件，加快速度。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sqlite3.exe .svn/wc.db &quot;select * from work_queue&quot;</span><br><span class="line">sqlite3 .svn/wc.db &quot;delete from work_queue&quot;</span><br><span class="line">ECHO &quot;DONE!&quot;</span><br><span class="line">PAUSE</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="5-3-美术外包资源管理"><a href="#5-3-美术外包资源管理" class="headerlink" title="5.3 美术外包资源管理"></a>5.3 美术外包资源管理</h3><p>除了游戏工程之外，美术外包或者内部制作的Max等资源也需要进行一定的版本管理。本质上说，使用svn对这部分资源进行管理并不合适，因为这些资源大都是二进制而非文本的，svn这种代码版本管理软件并不非常合适，更好的选择是NXN和Preforce这样的——有图形化的树状结构界面，不需要完整下载到本地，修改之前必须获取锁——这些这对于美术来说是更加直观、容易理解的方式。<br>但是，NXN收费很贵，Preforce也只允许20人以下的团队免费使用。花费了一些时间去做调研，但是目前我们出于统一和成本的角度考虑，依然使用SVN来对这部分的美术资源进行管理，后续可能会进行一些改进。</p>
+<blockquote>
+<p>在一个团队中，推广一个工具的使用需要不少的人力成本，尤其是美术和程序是两种不太相同的思维方式，而且很多美术对于工具使用都是一种机械记忆而非理解原理的方式，因此这也限制了一些可能更好的工具的应用。</p>
+</blockquote>
+<h2 id="6-项目管理与协作"><a href="#6-项目管理与协作" class="headerlink" title="6. 项目管理与协作"></a>6. 项目管理与协作</h2><p>项目管理这一部分也是花费了较多时间的，调研和试用了一系列的工具，稍微整理一下：</p>
+<ol>
+<li><strong>Project和Excel</strong>，这是最为传统的项目管理软件了，简单来说基于甘特图，适合项目经历做排期和监控项目进度，但是对于团队中各个职位的同事协作帮助并不大。</li>
+<li><strong>Redmine</strong>，在网易的时候也是使用Redmine进行项目管理的，后来网易公司也自己开发和扩展了“易协作”这样的平台。这应该是最为老牌和经典的项目协作软件了，免费开源，也有比较丰富的插件提供。</li>
+<li><strong>偏向敏捷开发的协作平台</strong>，比如<a href="https://www.teambition.com/" target="_blank" rel="external">teambition</a>、<a href="www.tower.im">Tower</a>、<a href="www.worklite.com">Worklite</a>等等，试用了几个，感觉大同小异，和Redmine的区别在于更加偏向于小团队敏捷开发，一些跨职位的流程功能提供不是非常全面，比如有些就没有提供从策划提单、程序做单、QA测单的流程性的东西。</li>
+</ol>
+<p>目前我们采用了内网Redmine+worklite的方式。出于搭建方便，节省时间的考虑，从淘宝购买了一套组织好插件的所谓“一键部署”的Redmine版本，自己做了两个简单的调整：</p>
+<ol>
+<li>我的工作台看板增加若干列，提供更多信息；</li>
+<li>ticket可以进行主题和描述的编辑功能。<br>部署过程还算顺利，除了遇到了端口和VisualSVN Server使用的端口冲突之外，没遇到太多问题，后面修改这两个调整花费了一些时间，对于Ruby和Web开发都不是很熟悉，一点点通过代码搜索来寻找修改的地方，然后不断测试修改才搞定。<br>Worklite我们用在对外美术外包的一些工作管理和面试流程管理上，因为外网方便访问，所以这么来做。我个人是很想推进一些敏捷协作平台的使用的，无论从理念上还是从美感上，可能都比Redmine要舒服一些，但是最终在试用之后没有这么来做的原因有如下几个：</li>
+<li>数据安全性的考虑，项目的一些内容，比如玩法设计可能会在任务单中有体现，这些是想保密的，放在外网服务器还是有些担心；</li>
+<li>做平台的小公司倒掉了，我们怎么办？迁移的成本很大。</li>
+<li>比如前文提到过的从策划提单、程序做单、QA测单的工作流程，很多敏捷工具不能很好地定义和推进；</li>
+<li>有一些硬性的功能修改需求，使用Redmine花费一些时间还有可能实现，使用别人的平台，可能只能去提建议；</li>
+<li>在试用的时候，遇到过外网访问困难的情况，比如刷新慢，上传文件比较慢等等问题，还是内网效率高速度快；</li>
+</ol>
+<blockquote>
+<p>对于工具的选择，往往有各方面的限制，其实不完全是决定着自己的喜好可以左右的……</p>
+</blockquote>
+<h2 id="7-自动化构建工具"><a href="#7-自动化构建工具" class="headerlink" title="7. 自动化构建工具"></a>7. 自动化构建工具</h2><p>网易内部有一套很有趣的网易POPO机器人，来辅助比如导表、打包这样的自动化构建过程，减少程序员的工作量。会申请一个特定的机器人账号，把它加入到一些工作群，只需要在这些群里输入比如“Android打包”，它就会构建已经建立好的自动化脚本进行打包，并把结果输出在群里，比如失败的错误信息，成功之后的下载链接等等。<br>这套东西非常方便，最初选择钉钉的时候看到有Open API就想去构建一下这套自动化的流程，后来经过测试和向官方询问发现无法通过接口获取群的聊天信息，其实后来也想通过网络抓包、钉钉软件破解等方式来做，但是太过麻烦，而且维护起来比较费时，所以选择了使用Jenkins+钉钉的方式。<br>Jenkins本身就是自动化持续构建的工具，钉钉只是用来反馈一些信息给策划、美术这些不习惯使用Jenkins的同事，比如打包结果，导表的错误信息等。这里提供一个简单的通过钉钉发送消息的Python脚本，需要的可以拿去用：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> Config</span><br><span class="line"><span class="keyword">from</span> HTTPUtils <span class="keyword">import</span> http_get</span><br><span class="line"><span class="keyword">from</span> HTTPUtils <span class="keyword">import</span> http_post</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TokenManager</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""Token每隔两个小时过期一次，再次获取刷新时间间隔。"""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        super(TokenManager, self).__init__()</span><br><span class="line">        self._token = <span class="keyword">None</span></span><br><span class="line">        self._update_time = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_token</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> (self._token <span class="keyword">and</span> (time.time() - self._update_time &lt; <span class="number">1000</span>)):</span><br><span class="line">            self._token = get_access_token()</span><br><span class="line">            self._update_time = time.time()</span><br><span class="line">        <span class="keyword">return</span> self._token</span><br><span class="line">        </span><br><span class="line">token_mgr_instance = TokenManager()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_access_token</span><span class="params">()</span>:</span></span><br><span class="line">    access_token = <span class="keyword">None</span></span><br><span class="line">    ret, msg = http_get(<span class="string">"https://oapi.dingtalk.com/gettoken?corpid=%s&amp;corpsecret=%s"</span>%(Config.CORP_ID, Config.CORP_SECRET))</span><br><span class="line">    <span class="keyword">if</span> ret:</span><br><span class="line">        access_token = msg[<span class="string">"access_token"</span>]</span><br><span class="line">    <span class="keyword">return</span> access_token</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">send_message</span><span class="params">(msg, chat_id = Config.ROBOT_CHAT_ID)</span>:</span></span><br><span class="line">    access_token = token_mgr_instance.get_token()</span><br><span class="line">    data = &#123;<span class="string">"chatid"</span> : chat_id, </span><br><span class="line">            <span class="string">"sender"</span> : Config.ROBOT_ID,</span><br><span class="line">            <span class="string">"msgtype"</span>: <span class="string">"text"</span>,</span><br><span class="line">            <span class="string">"text"</span>:&#123;</span><br><span class="line">                <span class="string">"content"</span> : msg</span><br><span class="line">            &#125;&#125;</span><br><span class="line">    ret, msg = http_post(<span class="string">"https://oapi.dingtalk.com/chat/send?access_token=%s"</span>%access_token, data)</span><br><span class="line">    <span class="keyword">return</span> ret</span><br></pre></td></tr></table></figure></p>
+<p><code>http_get</code>和<code>http_post</code>两个方法使用了Requests，基本定义如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">http_get</span><span class="params">(url)</span>:</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        response = requests.get(url, timeout=<span class="number">10</span>)</span><br><span class="line">    <span class="keyword">except</span> Exception, e:</span><br><span class="line">        logger.error(e)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line">    result = json.loads(response.text)</span><br><span class="line">    <span class="keyword">return</span> handle_result(result)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">http_post</span><span class="params">(url, data)</span>:</span></span><br><span class="line">    headers = &#123;</span><br><span class="line">        <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span>,</span><br><span class="line">        <span class="string">"Accept-Charset"</span>: <span class="string">"utf-8"</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        response = requests.post(url, headers=headers, data=json.dumps(data), timeout=<span class="number">10</span>)</span><br><span class="line">    <span class="keyword">except</span> Exception, e:</span><br><span class="line">        logger.error(e)</span><br><span class="line">    result = json.loads(response.text)</span><br><span class="line">    <span class="keyword">return</span> handle_result(result)</span><br></pre></td></tr></table></figure>
+<p>最初的时候使用urllib2，但是在mac系统上遇到了SSL错误的问题，研究半天最后还是使用了Requests库来做。Jenkins的搭建也是花费了一些时间和精力，包括在Mac机器上的权限问题，编码问题，SVN权限问题等等，可惜的是当时没有做完整详细的记录，一些坑没有办法完全记录下来，但是遇到了之后通过Google都可以找到解决方案。</p>
+<blockquote>
+<p>通过这一套方案，加上一些基于Python脚本构建的自动化打包、导表等流程，就可以让一些原本需要程序来做的工作编程策划/美术驱动机器人来完成，没有错误的情况下无需程序参与。</p>
+</blockquote>
+<h2 id="8-编辑器"><a href="#8-编辑器" class="headerlink" title="8. 编辑器"></a>8. 编辑器</h2><p>游戏开发的最理性情况，是程序编写玩法框架，策划来填充游戏内容，比如UE4的蓝图功能、Unity的PlayMaker插件，就是一种对于程序工作的释放。但是在一个大型商业游戏的开发中，引擎原生提供的编辑工具还是无法为策划、美术和UI提供完整的游戏内容实现工具，需要程序来实现一些与游戏玩法相关的编辑器或者代码功能，比如技能编辑、战场编辑器等等。</p>
+<p>网易早期，加上现在了解到的一些创业小团队，是以Excel表为核心提供策划编辑的功能。Excel的强大功能和灵活的编辑方式的确为策划提供了很多便利，但是还有一些小问题：</p>
+<ol>
+<li>比较难做到所见即所得，即对于有些东西的编辑不够直观，比如场景中的位置等；</li>
+<li>一些多维的数据需要进行拆分到多张表里的方式实现，设计和填写上会有些困难；</li>
+<li>比较难限制策划填写一些数据的正确性，比如一个外键值，策划填写时需要去其他表中查询这个key值是否存在，编辑器就可以提供下拉列表这样的方式来做。（Excel使用比较麻烦的方式也可以做到，或者在导表程序的后处理中检查。）</li>
+</ol>
+<p>对于这样的数据，我们采用编辑器的方式来实现，之前项目使用了一套元数据的编辑器框架，不需要维护编辑器的人修改界面，只需要简单增加或者修改一些元数据就可以了。Unity引擎本身的编辑器就是类似这样的实现思路，因此我们无需做额外的太多工作。</p>
+<blockquote>
+<p>编辑器的开发需要消耗程序不少的工作量，因此有时候在进度紧张人力不够的情况下，需要评估编辑器能够产出的价值。当编辑器真正能够让使用者的工作效率得到的提升远大于程序付出的时候，编辑器的意义才能够展现出来。</p>
+</blockquote>
+<h2 id="9-程序开发工具"><a href="#9-程序开发工具" class="headerlink" title="9. 程序开发工具"></a>9. 程序开发工具</h2><p>程序开发工具可以说的有很多，这里分为Unity和Lua脚本两部分进行简单的描述。</p>
+<h3 id="9-1-Unity引擎部分"><a href="#9-1-Unity引擎部分" class="headerlink" title="9.1 Unity引擎部分"></a>9.1 Unity引擎部分</h3><p>选择了Unity作为游戏开发的引擎，为了方便热更使用了Lua作为游戏逻辑开发的脚本语言。Unity引擎对于游戏调试的支持还是很好的，我们在开发便利性方面只引入了两个增强型的工具：</p>
+<ol>
+<li>Unity Editor内的SVN集成插件：<a href="https://www.assetstore.unity3d.com/en/#!/content/49128" target="_blank" rel="external">Svn Tools Lite</a></li>
+<li>控制台Log查看支持搜索等功能的扩展：<a href="https://www.assetstore.unity3d.com/en/#!/content/42381" target="_blank" rel="external">Console Enhanced Free</a></li>
+</ol>
+<h3 id="9-2-Lua部分"><a href="#9-2-Lua部分" class="headerlink" title="9.2 Lua部分"></a>9.2 Lua部分</h3><p>Lua语言方面，我们使用了<a href="https://github.com/lipp/tango" target="_blank" rel="external">Tango</a>作为<strong>跨Lua虚拟机通讯</strong>的解决方案。在游戏脚本开发中，支持断点调试通常比较困难，或者在联网情况下并不非常好用，比如有可能一断点就网络就断掉了，因此类似于Telnet的方案，可以在另外一个Lua虚拟机中直接连接游戏进程中的Lua虚拟机，进行一些属性查看、方法调用，也是一种非常实用的方法，甚至可以支持远程连接移动设备进行调试。</p>
+<p>这种多虚拟机的整合方案在网易内部应用得非常广泛，因为我参与的大部分项目都使用了Python语言，因此使用<a href="https://rpyc.readthedocs.io/en/latest/" target="_blank" rel="external">RPyC</a>作为解决方案，为游戏引擎外运行的编辑器开发提供了非常多的便利，与测试用的服务器相连接，也可以通过编辑器/控制台直接更新服务器内存数据。在手游项目中，也大量的使用于设备上的测试。可惜的是目前使用Lua语言，Tango虽然也提供了类似的功能，但是相比如RPyC来说完备性和易用性差很多，而且它是一个5年没有维护的项目了。。。好在基本的功能还是可以使用的，因此也就不再挑剔什么了。</p>
+<p>在游戏逻辑的开发中，可以利用Lua脚本语言的动态特性，提供运行时Reload的功能，在不重启游戏的情况下，修改游戏逻辑之后直接一键Reload游戏代码，然后查看修改结果。这可以非常大地提升游戏开发效率，当然对于添加函数或者修改数据结构这样的修改可能会存在一些问题，适用性有一定的限制。</p>
+<p>Lua的断点调试方式我们目前还没有走通，ToLua#的中提供了一套基于<a href="https://studio.zerobrane.com/" target="_blank" rel="external">zerobrane</a>的调试方法，但是我们试用还存在一些问题，断点只能停在main函数入口的地方，其他位置无法断点，还需要一些时间踩坑。</p>
+<p>Lua这部分可以聊的有很多，语言特性、面向对象的结构等等，有时间计划拿出单独的一篇博客来讲，这里就只提供上面的几个工具的实现思路，有兴趣的可以留言详细聊。</p>
+<h2 id="10-总结"><a href="#10-总结" class="headerlink" title="10. 总结"></a>10. 总结</h2><p>洋洋洒洒写了这么多，其实有技术含量的东西不多，但这些零零碎碎的工作，却又是从零开始组织一个手游开发公司必不可少的过程。一个程序的负责人必须利用有限的时间和人力，使用尽量少的资源搭建起让所有职位都可以正常运转与合作的工作流程与工具集合，而且尽量让这个流程更高效。</p>
+<p>从大公司的“温室”里“逃”出来，想做些不一样的事情，但初始要做的，却是这些在大公司不屑于去做的事情。这虽然有点讽刺的以为，但这个过程，也是学习和反思的过程——从之前的工作流程中提取好用高效的部分，反思哪些流程是可以改变和改进的。惭愧的是，现在搭建和使用的这些工具，大多还是“网易 like”的模式，不过已经看清了那些好处和坏处，等以后有人力和时间的时候，可以进行大刀阔斧的改进，这些是在大公司不太会去思考和改变的。</p>
+<p>2016年12月25日夜 于杭州家中<br>PS：圣诞夜，老婆去马来西亚学习潜水了，我自己一个人在家写这篇总结，想想还有点凄凉。。。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/11/27/unitydev2/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">MMO游戏优化经验分享沙龙总结</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="unitydev3" data-title="Unity手游开发札记——从零开始搭建手游开发的工具集" data-url="http://inarrater.com/2016/12/25/unitydev3/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"inarrater"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2016 董夕
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+</body>
+</html>
