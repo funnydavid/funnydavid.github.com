@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>Unity手游开发札记——ToLua#集成内存泄露检查和性能检测工具 | Narrater</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="#0. 前言有段时间没有写博客了，主要原因是事情有点多，一件接着一件，没有太多整理总结的机会。游戏开发逐渐进入铺量制作的忙碌阶段，趣味性没那么多，新鲜感也少了，虽然还是有很多可供记录的点，但大多比较琐碎，难成系统，又或者可能暂时没有结果，不便于分享。这几天花了一些时间在Lua层的内存检查和性能优化与检查方面，对比并尝试集成了一些方案，也踩了一些坑，整理记录在这里，给需要的同学提供参考。
+#1. T">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unity手游开发札记——ToLua#集成内存泄露检查和性能检测工具">
+<meta property="og:url" content="http://inarrater.com/2017/04/20/unitydev4/index.html">
+<meta property="og:site_name" content="Narrater">
+<meta property="og:description" content="#0. 前言有段时间没有写博客了，主要原因是事情有点多，一件接着一件，没有太多整理总结的机会。游戏开发逐渐进入铺量制作的忙碌阶段，趣味性没那么多，新鲜感也少了，虽然还是有很多可供记录的点，但大多比较琐碎，难成系统，又或者可能暂时没有结果，不便于分享。这几天花了一些时间在Lua层的内存检查和性能优化与检查方面，对比并尝试集成了一些方案，也踩了一些坑，整理记录在这里，给需要的同学提供参考。
+#1. T">
+<meta property="og:updated_time" content="2017-04-19T16:09:44.668Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Unity手游开发札记——ToLua#集成内存泄露检查和性能检测工具">
+<meta name="twitter:description" content="#0. 前言有段时间没有写博客了，主要原因是事情有点多，一件接着一件，没有太多整理总结的机会。游戏开发逐渐进入铺量制作的忙碌阶段，趣味性没那么多，新鲜感也少了，虽然还是有很多可供记录的点，但大多比较琐碎，难成系统，又或者可能暂时没有结果，不便于分享。这几天花了一些时间在Lua层的内存检查和性能优化与检查方面，对比并尝试集成了一些方案，也踩了一些坑，整理记录在这里，给需要的同学提供参考。
+#1. T">
+  
+    <link rel="alternative" href="/atom.xml" title="Narrater" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">董夕</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">讲述，而非记录</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						
+						<li>关于我</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+					        
+								<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+					        
+								<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/Lua/" style="font-size: 13.33px;">Lua</a> <a href="/tags/Python/" style="font-size: 16.67px;">Python</a> <a href="/tags/Retargeting/" style="font-size: 10px;">Retargeting</a> <a href="/tags/Unity/" style="font-size: 10px;">Unity</a> <a href="/tags/工具/" style="font-size: 10px;">工具</a> <a href="/tags/开发/" style="font-size: 20px;">开发</a> <a href="/tags/性能优化/" style="font-size: 10px;">性能优化</a> <a href="/tags/总结/" style="font-size: 10px;">总结</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">程序员，对故事有爱，想要有趣的人生。</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">董夕</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+			
+				<img lazy-src="https://avatars3.githubusercontent.com/u/1161707?v=3&amp;u=799cd3cd987f22d4f4ee828fcb756150fb5623b1&amp;s=140" class="js-avatar">
+			
+			</div>
+			<hgroup>
+			  <h1 class="header-author">董夕</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">讲述，而非记录</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/funnydavid" title="github">github</a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/funny-david" title="zhihu">zhihu</a>
+			        
+						<a class="douban" target="_blank" href="https://www.douban.com/people/3439529/" title="douban">douban</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap"><article id="post-unitydev4" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/20/unitydev4/" class="article-date">
+  	<time datetime="2017-04-19T16:08:40.000Z" itemprop="datePublished">2017-04-20</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Unity手游开发札记——ToLua#集成内存泄露检查和性能检测工具
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lua/">Lua</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Unity/">Unity</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
+	</div>
+
+        
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>#0. 前言<br>有段时间没有写博客了，主要原因是事情有点多，一件接着一件，没有太多整理总结的机会。游戏开发逐渐进入铺量制作的忙碌阶段，趣味性没那么多，新鲜感也少了，虽然还是有很多可供记录的点，但大多比较琐碎，难成系统，又或者可能暂时没有结果，不便于分享。<br>这几天花了一些时间在Lua层的内存检查和性能优化与检查方面，对比并尝试集成了一些方案，也踩了一些坑，整理记录在这里，给需要的同学提供参考。</p>
+<p>#1. ToLua#的编译<br>之前的博客有提到过，我们使用的是ToLua#作为Unity引擎和Lua之间的桥接工具，本文记录的集成工具都是在C层进行的，因此要编译自己的ToLua#。<br>ToLua#的源码地址是：<a href="https://github.com/topameng/tolua_runtime" target="_blank" rel="external">https://github.com/topameng/tolua_runtime</a>，编译流程可以参考其wiki文档，不过这部分的过程记录的不太详细，本部分基于wiki文档和自己在Windows以及Mac OS上的编译过程进行一些整理，记录整个过程和遇到的问题如下：</p>
+<p>1) 安装msys2-x86_64-20161025.exe工具，Web地址：<a href="http://msys2.github.io/。" target="_blank" rel="external">http://msys2.github.io/。</a></p>
+<p>2) 为msys2安装gcc，由于原始的下载地址我本地下载非常慢而且出错，建议添加国内的镜像地址：<br>    编辑 /etc/pacman.d/mirrorlist.mingw32 ，在文件开头添加：Server = <a href="http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/i686" target="_blank" rel="external">http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/i686</a><br>    编辑 /etc/pacman.d/mirrorlist.mingw64 ，在文件开头添加：<br>    Server = <a href="http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/x86_64" target="_blank" rel="external">http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/x86_64</a><br>    编辑 /etc/pacman.d/mirrorlist.msys ，在文件开头添加：<br>    Server = <a href="http://mirrors.ustc.edu.cn/msys2/REPOS/MSYS2/$arch" target="_blank" rel="external">http://mirrors.ustc.edu.cn/msys2/REPOS/MSYS2/$arch</a><br>    然后执行 pacman -Sy 刷新软件包数据即可。</p>
+<p>3) 打开mingw的控制台，输入如下命令进行gcc相关工具的安装：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pacman -S mingw-w64-i686-gcc </span><br><span class="line">pacman -S mingw-w64-x86_64-gcc </span><br><span class="line">pacman -S mingw-w64-i686-make </span><br><span class="line">pacman -S mingw-w64-x86_64-make</span><br><span class="line">pacman -S make</span><br></pre></td></tr></table></figure></p>
+<p>4) 安装完毕之后，执行tolua_runtime下的对应sh文件进行编译。</p>
+<p>5) 编译Android版本需要安装Android SDK，下载Android NDK r10e，并配置Android NDK r10e的目录到PATH环境变量中，配置ANDROID_NDK_PATH环境变量。需要注意几个配置：<br>sh文件里的NDKABI变量，定义了NDK的版本，在msys64\etc\profiles里设置环境变量。</p>
+<p>6) 如果你使用的MinGW-w64 Win64 Shell来编译32位版本的时候会报找不到dll的错误：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: skipping incompatible</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/lib/libm.a when searching for -lm</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: skipping incompatible</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/lib\libm.a when searching for -lm</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: skipping incompatible</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/lib/libm.a when searching for -lm</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: cannot find -lm</span><br></pre></td></tr></table></figure>
+<p>我纠结了半天，按照路径检查发现它用的还是64位的库，在msys64下发现有两个exe，一个叫做mingw64.exe，一个叫做mingw32.exe，使用32位的那个来编译对应的32版本就可以正常编译了。</p>
+<p>7) iOS的编译脚本里设置了  ISDKVER=iPhoneOS10.2.sdk，这里要跟随SDK的版本升级进行更新，否则LuaJit就编译不过，报错信息为”string.h”文件找不到。</p>
+<p>这样，使用不同的编译脚本就可以编译出对应平台的ToLua.dll文件了，拷贝文件覆盖之前Unity的Plugins目录下对应平台的dll文件即可实现ToLua#的更新。</p>
+<blockquote>
+<p>注意： 在覆盖的时候要关闭对应工程的Unity进程，否则会提示dll被占用无法覆盖。</p>
+</blockquote>
+<p>#2. 内存检查工具<br>Unity引擎中有自己的内存检查工具，但是无法查看集成的Lua部分的内存情况。Lua的内存管理由Lua虚拟机负责，Lua 5.1版本的垃圾回收使用的是<strong>双白色标记清除（Mark-sweep）算法</strong>，5.2版本引入了<strong>分代</strong>的策略，具体的实现原理可以参考Lua的源代码。从根本上说，由于有垃圾回收功能的存在，即使存在循环引用的情况，也可以在GC的过程中对不再使用的内存进行释放，不存在严格意义上的“内存泄露”，然而，在游戏运行过程中，无论是C#层的频繁GC还是Lua层的频繁GC，都会导致卡顿的问题，因此要尽量减少内存的无谓分配，从而减少GC的执行频率。当然，由于开发过程中存在C#和Lua的互相引用，可能会出现由于释放过程存在问题导致C#和Lua的对象互相引用然后都GC不掉的情况，这个可能产生更加严重的内存问题。因此，我们需要的内存检查工具最少应当可以针对上述这两种情况进行检查。</p>
+<p>通常进行内存排查的原理比较相似，大都是基于两份内存快照之间的差异来进行人工的对比和分析，对于Lua 5.1来说，大部分的资源都是在_G这样一个变量，因此一次常见的思路是从这个_G开始来遍历出所有的Lua对象，当然，如果不想遗漏数据，更加好的遍历起始应当是从<code>debug.getregistry()</code>开始。编写的代码不太复杂，逐一处理好metatable等相关的内容即可，我尝试了git上一个在Lua层的工具：<a href="https://github.com/radiotail/lua_memleak" target="_blank" rel="external">lua_memkeak</a>，有一些问题，原因是我们自己在Lua层Hook了_G的访问机制来避免不小心写出的全局变量。<em>（多说几句，在Lua中不声明local的变量都会作为全局变量，或者更严格地说，函数中的变量在不声明local的情况下，会被放在函数的env中，只是默认所有函数的env都是_G，所以才造成了不声明local的变量会被放置在_G中的现象。不经意的全局变量可能会导致意料之外的数据修改从而产生难以排查的bug，同事导致部分内存无法被正确地释放，因此我们项目中Lua的所有全局变量必须由一个函数来进行声明。）</em></p>
+<p>因此我更倾向于找一个C层的实现，云风作为Lua的倡导者，在他的博客中提供了一个Lua内存分析工具：<a href="http://blog.codingnow.com/2012/12/lua_snapshot.html" target="_blank" rel="external">Snapshot</a>，对应的Git地址在<a href="https://github.com/cloudwu/lua-snapshot" target="_blank" rel="external">这里</a>。集成到ToLua#中的过程也比较简单，把snapshot.c文件拷贝到ToLua_Runtime目录下，修改一下build脚本，将snapshot.c加入到编译代码中。由于原始的snapshot.c文件目标是编译为dll供Lua虚拟机调用，这里为了方便ToLua#使用，修改了一下最后的接口导出：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">static const struct luaL_Reg snapshot_funcs[] = &#123;</span><br><span class="line">	&#123; "snapshot",	b_snapshot &#125;,</span><br><span class="line">	&#123; NULL, NULL &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">LUALIB_API int luaopen_snapshot(lua_State *L) &#123;</span><br><span class="line">	luaL_checkversion(L);</span><br><span class="line">	#if LUA_VERSION_NUM &lt; 502</span><br><span class="line">		luaL_register(L, "snapshot", snapshot_funcs);</span><br><span class="line">	#else</span><br><span class="line">		luaL_newlib(L, snapshot_funcs);</span><br><span class="line">	#endif</span><br><span class="line">	return 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>按照第一步重新编译ToLua#的dll文件，更新之后，添加对应导出的C#接口，然后在Lua代码中仿照例子编写一个初步的内存查看函数：<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Lua内存记录功能</span></span><br><span class="line"><span class="keyword">local</span> preLuaSnapshot = <span class="keyword">nil</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">snapshotLuaMemory</span><span class="params">(sender, menu, value)</span></span></span><br><span class="line">    <span class="comment">-- 首先统计Lua内存占用的情况</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"GC前, Lua内存为:"</span>, <span class="built_in">collectgarbage</span>(<span class="string">"count"</span>))</span><br><span class="line">    <span class="comment">-- collectgarbage()</span></span><br><span class="line">    <span class="comment">-- print("GC后, Lua内存为:", collectgarbage("count"))</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">local</span> snapshot = <span class="built_in">require</span> <span class="string">"snapshot"</span></span><br><span class="line">    <span class="keyword">local</span> curLuaSnapshot = snapshot.snapshot()</span><br><span class="line">    <span class="keyword">local</span> ret = &#123;&#125;</span><br><span class="line">    <span class="keyword">local</span> count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span> preLuaSnapshot ~= <span class="keyword">nil</span> <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="built_in">pairs</span>(curLuaSnapshot) <span class="keyword">do</span></span><br><span class="line">            <span class="keyword">if</span> preLuaSnapshot[k] == <span class="keyword">nil</span> <span class="keyword">then</span></span><br><span class="line">                count = count + <span class="number">1</span></span><br><span class="line">                ret[k] = v</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> <span class="built_in">pairs</span>(ret) <span class="keyword">do</span></span><br><span class="line">        <span class="built_in">print</span>(k)</span><br><span class="line">        <span class="built_in">print</span>(v)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span> (<span class="string">"Lua snapshot diff object count is "</span> .. count)</span><br><span class="line">    preLuaSnapshot = curLuaSnapshot</span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>使用方法非常简单，制作了一个按钮，触发上述的函数，点击一次会做一个内存快照记录在preLuaSnapShot中，过一段时间，再点击一次按钮，就会在控制台输出内存的diff情况。我们主要针对两块内容进行了初步检查：</p>
+<ol>
+<li>角色在场景内只做移动等简单操作，查看是否有网络、游戏简单的tick逻辑导致的内存分配。这种情况下更多是不进行手动GC，着重检查不必要的内存分配。</li>
+<li>进出战斗之后查看前后快照的diff，检查是否有内存泄露的情况。这种情况下会进行一次手动GC，来回收那些战斗中的临时数据，着重检查由于各种引用关系导致无法被释放的内存对象。</li>
+</ol>
+<p>我们初步发现了之前代码中的一些问题，包括逻辑代码中可以优化的table创建过程，角色移动过程中不断的回调用的Slot对象创建，ToLua#中协程实现的时候每次wait都会创建一个Timer对象等问题，并逐一进行了修复。</p>
+<blockquote>
+<p>注意：在使用云风这个Snapshot工具的时候，它好用的地方是可以查看到对象的类型、变量名称和文件行数，但是可能由于某些对象引用在ToLua#内部或者C#层，抑或是我们自己编写的Lua Class机制，导致一些条目无法像云风博客中说的看到那么多细致的内容，只能看到变量名称和类型，通过全局搜索来判定对象被引用的位置。时间关系没有去查看源代码进行优化，之后有时间可以再仔细看下，如果有朋友知道如何解决也希望不吝赐教~</p>
+</blockquote>
+<p>#3. Profiler的集成</p>
+<p>由于我们放置了大量的逻辑在Lua层，因此也需要对Lua的部分进行Profiler来定位可以进行优化的点。由于内存部分使用了云风的Snapshot，因此自然想看看云风的git上是否有Profiler的工具，果然很快找到了——<a href="https://github.com/cloudwu/luaprofiler" target="_blank" rel="external">LuaProfiler</a>。结构也很简单，就一个profiler.c文件需要集成，因此很开心地下载下来尝试集成到游戏中，但是编译的时候各种错误。</p>
+<p>仔细看了一下代码，原来用到的很多函数都是Lua 5.2和Lua 5.3版本之后才有的函数，尝试翻找snapshot.c中的代码进行一些5.1版本中的实现，花费了半天时间编译通过了但是试用了下会Crash。对于Lua的代码部分不是非常熟悉，因此觉得再在这个地方花费时间可能是个无底洞，因此又想去找找别的方法。</p>
+<p>Lua-users上有专门的<a href="http://lua-users.org/wiki/ProfilingLuaCode" target="_blank" rel="external">Profiling Lua Code</a>专题，第一个是<a href="http://luaprofiler.luaforge.net/" target="_blank" rel="external">LuaProfiler</a>，看了下是支持5.1版本的，但是git上面上次更新是08年的事情了。。。看着有点虚，又搜罗了一圈，其他基于Lua层自己做Profiler的工具感觉对于Lua的运行可能会有比较大的性能影响，因此不太想去尝试。最后还是觉得先试试这个接近10年前的产品。</p>
+<p>集成的过程还算顺利，以win64为例，只需要添加如下部分在sh文件中即可：<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">luaprofiler/stack.c \</span><br><span class="line">luaprofiler/clocks.c \</span><br><span class="line">luaprofiler/function_meter.c \</span><br><span class="line">luaprofiler/core_profiler.c \</span><br><span class="line">luaprofiler/lua50_profiler.c \</span><br></pre></td></tr></table></figure></p>
+<p>编译也较为顺利，但是一旦在游戏中开启之后，ToLua#就会一直报错。对于Lua调用C#的接口，都会报错在这个地方：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public static void CheckArgsCount(IntPtr L, int count)</span><br><span class="line">&#123;</span><br><span class="line">    int c = LuaDLL.lua_gettop(L);</span><br><span class="line"></span><br><span class="line">    if (c != count)</span><br><span class="line">    &#123;</span><br><span class="line">        throw new LuaException(string.Format(&quot;no overload for method takes &apos;&#123;0&#125;&apos; arguments&quot;, c));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>添加断点看了下，这里Lua虚拟机的堆栈中的数据c的值比期望的参数个数count大1。利用一个接口查看了下具体的参数类型和数据，前面的都正确，只是最后多一个而已。一开始的想法是LuaProfiler底层的代码为了方便记录数据，在每次函数调用的地方都添加了一个变量来进行数据存储。于是我想只能通过修改ToLua#的生成代码，让之前严格的参数个数必须相等的判断修改为大于等于就通过的判定，这样可以避免误报LuaException，但是仔细思考之后，觉得这样修改太过于麻烦，让ToLua#生成的代码可能不够严谨，于是想从C层看看有没有修改的可能。</p>
+<p>其实，无论是云风的方式还是这个LuaProfiler，抑或是其他的基于Lua层的性能检查工具，其根本原理是基于lua_sethook这样一个功能。</p>
+<blockquote>
+<p>lua_sethook</p>
+<p>int lua_sethook (lua_State *L, lua_Hook f, int mask, int count);</p>
+<p>Sets the debugging hook function.</p>
+<p>Argument f is the hook function. mask specifies on which events the hook will be called: it is formed by a bitwise or of the constants LUA_MASKCALL, LUA_MASKRET, LUA_MASKLINE, and LUA_MASKCOUNT. The count argument is only meaningful when the mask includes LUA_MASKCOUNT. For each event, the hook is called as explained below:</p>
+<p>The call hook: is called when the interpreter calls a function. The hook is called just after Lua enters the new function, before the function gets its arguments.<br>The return hook: is called when the interpreter returns from a function. The hook is called just before Lua leaves the function. You have no access to the values to be returned by the function.</p>
+<p>The line hook: is called when the interpreter is about to start the execution of a new line of code, or when it jumps back in the code (even to the same line). (This event only happens while Lua is executing a Lua function.)</p>
+<p>The count hook: is called after the interpreter executes every count instructions. (This event only happens while Lua is executing a Lua function.)<br>A hook is disabled by setting mask to zero.</p>
+</blockquote>
+<p>云风的方式是间隔采样的方式，hook LUA_MASKCOUNT，按照一定的间隔进行代码采样，这种方式不太能精确统计每个函数的运行时间，但是对于运行的程序影响较小，从整体消耗百分比的角度分析瓶颈更加准确。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lua_sethook(cL, profiler_hook, LUA_MASKCOUNT, interval);</span><br></pre></td></tr></table></figure>
+<p>LuaProfiler的方式是Hook每个函数的调用和Return逻辑，可以拿到每个函数精确的运行时间，但是这个过程中也就增加了运行消耗。这跟量子力学的理论有那么点相似——你想要观察对象，就会对被观察的对象产生影响。LuaProfiler通过暂停计时的方式让统计的时间更加准确，但是运行时的消耗无法减少。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lua_sethook(L, (lua_Hook)callhook, LUA_MASKCALL | LUA_MASKRET, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>仔细阅读了一下LuaProfiler的代码，对于一些不太了解的函数也逐一进行了搜索，最后发现其在hook的函数处理中逻辑上并不需要在Lua的栈中添加数据，它用于记录时间消耗的数据在自己组织的一块内存的栈结构中。</p>
+<p>最后发现，在callback函数中的lua_gettable操作用来获取profile的状态信息指针，但是把这个数据遗漏在了栈中没有pop出来。我尝试在最后添加了<code>lua_pop (L, 1);</code>操作，编译测试之后没有遇到问题，也解决了ToLua#的报错。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* called by Lua (via the callhook mechanism) */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">callhook</span><span class="params">(lua_State *L, lua_Debug *ar)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> currentline;</span><br><span class="line">  lua_Debug previous_ar;</span><br><span class="line">  lprofP_STATE* S;</span><br><span class="line">  lua_pushlightuserdata(L, &amp;profstate_id);</span><br><span class="line">  lua_gettable(L, LUA_REGISTRYINDEX);</span><br><span class="line">  S = (lprofP_STATE*)lua_touserdata(L, <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (lua_getstack(L, <span class="number">1</span>, &amp;previous_ar) == <span class="number">0</span>) &#123;</span><br><span class="line">    currentline = <span class="number">-1</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    lua_getinfo(L, <span class="string">"l"</span>, &amp;previous_ar);</span><br><span class="line">    currentline = previous_ar.currentline;</span><br><span class="line">  &#125;</span><br><span class="line">      </span><br><span class="line">  lua_getinfo(L, <span class="string">"nS"</span>, ar);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!ar-&gt;event) &#123;</span><br><span class="line">    <span class="comment">/* entering a function */</span></span><br><span class="line">    lprofP_callhookIN(S, (<span class="keyword">char</span> *)ar-&gt;name,</span><br><span class="line">		      (<span class="keyword">char</span> *)ar-&gt;source, ar-&gt;linedefined,</span><br><span class="line">		      currentline);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123; <span class="comment">/* ar-&gt;event == "return" */</span></span><br><span class="line">    lprofP_callhookOUT(S);</span><br><span class="line">  &#125;</span><br><span class="line">  lua_pop (L, <span class="number">1</span>); <span class="comment">/* lua_gettable operation left a value in the lua stack, which makes the tolua param check failed! */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我依然有些担心LuaProfiler的作者将这个信息遗漏在栈内是否是有意为之，只是目前这个工具能够正常工作，我就先当作自己fix了一个不过。</p>
+<blockquote>
+<p>这里说一个插曲，在UWA群中我去问了一下LuaProfiler的情况，有个朋友说他们使用SLua+LuaProfiler没有遇到问题，我还专门有去看了下SLua的Warp函数，感觉其对于参数个数的检查和ToLua差别不大，也是基于相等来做的判定。时间关系，我没有去尝试在SLua中集成来进行测试，有使用的朋友可以自己试下，有结论也期望反馈给我。</p>
+</blockquote>
+<p>集成之后的LuaProfiler的使用可以参考<a href="http://luaprofiler.luaforge.net/manual.html#analyzer" target="_blank" rel="external">Using LuaProfiler</a>的描述，简单来说使用它提供的summary.lua，结合Excel就可以进行比较好的性能分析。使用-v参数可以统计出包括执行次数、平均时长、总时间消耗在内的更多信息。</p>
+<p>#4. 总结</p>
+<p>要在Unity中用好Lua需要注意很多东西，脚本语言本身的性能就比静态语言要差一些，如果写得人不够专业，就可能会造成很多问题，包括内存泄露和性能瓶颈。通过这几个工具的集成，可以让项目组的其他同学方便地进行内存检查和性能测试，越早地抓出问题，就可以让后续编写的代码更好。对于我个人来说，这也是对于Lua进行C扩展的一个入门练习，通过阅读代码和尝试修改bug，了解了一些基本函数的意义和使用方法。</p>
+<p>后续有时间，我会按照项目的需求对这两个工具进行一些改造。目前它们在信息输出方面还有一些缺失，LuaProfiler由于在运行时会记录很多数据从而导致严重影响游戏的帧率，最后统计的结果也没有调用关系的内容，到时候有了产出再在博客中分享大家。</p>
+<p>2017年4月20日于杭州家中</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/04/20/unityretargeting/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          动画重定向技术分析和Unity中的应用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/12/25/unitydev3/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Unity手游开发札记——从零开始搭建手游开发的工具集</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="unitydev4" data-title="Unity手游开发札记——ToLua#集成内存泄露检查和性能检测工具" data-url="http://inarrater.com/2017/04/20/unitydev4/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"inarrater"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2017 董夕
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+</body>
+</html>

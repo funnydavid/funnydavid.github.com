@@ -107,7 +107,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/Python/" style="font-size: 15px;">Python</a> <a href="/tags/工具/" style="font-size: 10px;">工具</a> <a href="/tags/开发/" style="font-size: 20px;">开发</a> <a href="/tags/性能优化/" style="font-size: 10px;">性能优化</a> <a href="/tags/总结/" style="font-size: 10px;">总结</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
+						<a href="/tags/Lua/" style="font-size: 13.33px;">Lua</a> <a href="/tags/Python/" style="font-size: 16.67px;">Python</a> <a href="/tags/Retargeting/" style="font-size: 10px;">Retargeting</a> <a href="/tags/Unity/" style="font-size: 10px;">Unity</a> <a href="/tags/工具/" style="font-size: 10px;">工具</a> <a href="/tags/开发/" style="font-size: 20px;">开发</a> <a href="/tags/性能优化/" style="font-size: 10px;">性能优化</a> <a href="/tags/总结/" style="font-size: 10px;">总结</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a>
 					</div>
 				</section>
 				
@@ -172,6 +172,246 @@
 </nav>
 
       <div class="body-wrap">
+  
+    <article id="post-unityretargeting" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/20/unityretargeting/" class="article-date">
+  	<time datetime="2017-04-19T16:09:57.000Z" itemprop="datePublished">2017-04-20</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/20/unityretargeting/">动画重定向技术分析和Unity中的应用</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h2><p>新的手游项目使用Unity引擎，动画部分要使用<a href="https://docs.unity3d.com/Manual/Retargeting.html" target="_blank" rel="external">重定向技术</a>来实现动画复用。之前在大公司工作的时候对这块了解比较深入，读过Havok引擎在这部分的实现源码，也基于自己的理解在公司自研的手游引擎中实现了一个简化的版本。本文从原理层面分析一下Animation Retargeting技术的实现方式，然后落回到Unity引擎中，记录一下我们使用Retargeting的时候遇到的问题和解决方法。</p>
+<h2 id="1-什么是动画重定向"><a href="#1-什么是动画重定向" class="headerlink" title="1. 什么是动画重定向"></a>1. 什么是动画重定向</h2><p>动画重定向，即Animation Retargeting，是一种动画复用的技术，直观上，你可以把它的作用想象成周星驰电影《西游-降魔篇》里的“听话符”——“我做什么，你就跟我做什么”。<br><img src="http://o9hm1ti4o.bkt.clouddn.com/tinghuafu.png" alt="听话符"></p>
+<p>这里给出一个非官方的定义：</p>
+<blockquote>
+<p>Retargeting is just the process of “copying” the animation from one skeleton to the other.</p>
+</blockquote>
+<p>简单来说，重定向技术就是一种在将动画数据从一个骨架拷贝到另外一个骨架的过程，只是这个所谓的“拷贝”过程，没有Ctrl+C、Ctrl+V这么简单，其实现的方式，也会影响到动画应用到另外一个骨架之后的效果。</p>
+<h2 id="2-为什要使用动画重定向"><a href="#2-为什要使用动画重定向" class="headerlink" title="2. 为什要使用动画重定向"></a>2. 为什要使用动画重定向</h2><p>动画重定向技术在很多地方已经得到很广泛的应用，比如目前3A级主机游戏常用的动作捕捉技术就是基于这个原理来实现的——将真实人物 的动作通过图像识别等技术生成动画信息应用到虚拟的角色身上，保存成动画数据。还有Max和Maya这样的建模工具中，也都已经集成了这一技术，用来方便美术把一个动作文件复用到其他骨架上。</p>
+<p>那什么样的游戏开发需要这样的技术呢？我们可以假想如果要开发类似《街霸》这样的3D格斗游戏，其中有几十个不同体型姿态各异的角色，战斗过程中会有很多抓技和投技的动作表现，对于这一类型的技能，不同角色的受击动作应该是一致的。</p>
+<p>如果使用最常规的制作方法，需要对每一个角色制作攻击动作对应的受击动画，或者需要限制策划设计的受击表现在使用固定姿势、挂接、特效等方式可以实现的范围内。而不甘平庸的策划同学往往需要更加复杂的受击表现，常规的制作方法带来的问题有如下三个方面：</p>
+<p><strong>a) 美术工作量较大。</strong> 如果有n个不同角色的骨架，有m个需要特殊表现的技能，那么只考虑受击动画就需要m*n个，这个数量级通常会在几千个动作的级别。美术需要制作、导出这些动画文件，需要非常大的工作量。</p>
+<p><strong>b) 动画维护困难。</strong> 想象下，策划设计了一个需要特殊动作表现的技能，美术加班加点制作出了所有英雄的受击动画，第二天黑着眼圈来上班，策划同学满脸讪笑地走过来说——“哎呀，你看，这个受击动作的第15帧有点不自然，力量感不够强，要你不优化一下？”……每一处修改都需要美术手动同步到其他动作文件上，重新调整导出，这一过程太过费时费力。</p>
+<p><strong>c) 游戏发布打包文件过大。</strong> 动画文件多必然带来这一问题，尤其是在手游中，包体大小通常是安卓渠道发行的一个需要考虑的重要指标。</p>
+<p>而动画重定向技术就是一种时间换空间的思路，在运行时将一套动画根据预计算好的骨骼差异信息，得到目标模型骨架上可以适用的动画数据，就可以生成目标角色的受击动画效果。这种方式既可以减少美术的工作量，又可以增加游戏对策划需求和修改的灵活度，将需要维护和打包的动画数量从m*n这样的平方级别降低到m个。当然，软件工程中“没有银弹”的定律在这里依旧生效，重定向之后的动画可能由于体型差异等问题在某些情况下无法完全满足策划或者美术的要求，这就需要一些额外的方法或者重新制作部分动画来进行弥补，这部分放在后面进行详述。</p>
+<h2 id="3-基本原理"><a href="#3-基本原理" class="headerlink" title="3. 基本原理"></a>3. 基本原理</h2><p>写到这里，其实之前有一点没有说明的是动画重定向技术主要是针对骨骼动画的方案，由骨骼来描述动作信息，用蒙皮来表示模型网格与骨骼之间的关系从而得到模型最终的样子。对于这块不熟悉的读者可以自己查阅一下相关的资料。<br><img src="http://o9hm1ti4o.bkt.clouddn.com/skeletonanimation.png" alt="骨骼动画"></p>
+<p>动画重定向的过程主要是针对骨骼信息，对于蒙皮过程没有任何影响。而动画信息，可以理解为每一帧中所有骨骼数据信息的集合，更加形象地理解，动画就是每一帧为模型制作一个Pose（姿势），在每帧之间的姿势可以通过差值获得。</p>
+<p>为了更加清楚地描述动画重定向地原理，我们截取某一帧的姿势来进行分析——在解决了每一帧的姿势重定向之后，整个动画的重定向也就是在每一帧都进行姿势的重定向即可。</p>
+<p>假设有两个模型，他们的骨架分别是A和B，我们拥有A骨架对应的动画数据，想把这个动画数据应用在B骨架上。直接应用是否可以？当A骨架和B骨架完全一样的时候，直接应用是可以的，但通常动画重定向要处理的是骨架不太一样的情况。这些不一样的情况有很多种，比如：<br>a) 骨骼数量不一致；<br>b) 骨骼父子关系不一致；<br>c) 骨骼名称不一致；<br>d) 骨骼本身的长度等数据不一致。</p>
+<p>对于前几种不一致情况的处理，我们在基本原理的部分先不进行分析，对于骨骼数量一致、骨骼父子关系也相同这样最为简单的情况下，我们来看一下动画重定向的基本方式。</p>
+<p>先明确在这种情况下，直接应用A的动画数据到B上会存在的问题。想象一下，A是一个身高为1.8m左右的大人骨架，而B是一个身高为1.5m左右小孩骨架，A的动画信息记录的骨骼位置（Position）、旋转（Rotation）和缩放（Scale）信息都是针对于大人的，比如经过最终的计算，在Idle动画中的某一帧姿势中，模型空间下A的Head这根骨骼可能在距离地面1.7m这样的位置，而同样的动作让一个小孩B来做，也把Head骨骼放置在1.7m的位置，蒙皮之后的结果会非常奇怪，出现拉伸等问题，因为B的身高整个才是1.5m。</p>
+<p>为了解决这个问题，或者说一个正确的动画重定向过程，是基于所谓的参考姿势（Reference Pose）的。通常情况下，会把T-Pose作为参考姿势。引入参考姿势之后，动画数据不再直接应用到目标骨架上，而是把动画姿势与参考姿势的差异应用到目标骨架上。a1是A骨架的参考姿势，b1是B骨架的参考姿势，动画中某一帧的姿势是a2，我们想得到的结果是b2，我们认为，a2与参考姿势a1的差异应当和b2与其对应的参考姿势b1的差异相同，即：</p>
+<blockquote>
+<p>a2 - a1 = b2 - b1</p>
+</blockquote>
+<p>我们可以得到计算过程为：</p>
+<blockquote>
+<p>b2 = a2 - a1 + b2 = a2 + (b1 - a1)</p>
+</blockquote>
+<p>这其中，a1和b1的数据是在游戏发布时就确定的，因此可以进行预先计算好b1-a1的值。要知道这里的加法和减法要转换为每根骨骼的PRS计算，因此还是有不少CPU消耗的。下图给出了使用一个简单整数代替骨骼的PRS数据来模拟动画重定向的计算过程。</p>
+<p><img src="http://o9hm1ti4o.bkt.clouddn.com/animationretargeting1.png" alt="简化版本的动画重定向原理"></p>
+<p>从上图可以看出，在Setup阶段，可以计算出b1-a1的值，然后运行时只需要根据动画数据这个diff值就可以得到最终想要的动画效果。这里需要说明的是，在Havok引擎的实现中，会根据a1和b1两个参考姿势中每根骨骼相对于父骨骼的Position计算出骨骼的长度，比如a1中Head骨骼的长度为1.0，b1中Head骨骼的长度为1.5，计算diff的结果时会把这两个值的比例应用到scale部分，即会给scale * 1.5，来保证最终映射出来骨骼位置的合理性。这部分的实现太过细节，其实只需要做这部分实现的人理解即可，有兴趣的朋友可以留言讨论。</p>
+<p>在引擎实现方面，Havok引擎使用了单独的mapping文件来存储b1-a1的数据，并且这部分数据具有一定的可定制性；在我自己后来的实现中，采用的方式是加载模型文件时检查该模型是否需要动画重定向，如果需要则计算一份对应的diff信息放在内存中。两种实现方案的区别不大，只是时间和空间的互换，后者是在需求比较确定，减少美术工作量的考量下选择的实现方式。</p>
+<p>总之，基于参考姿势的动画重定向计算，不但可以保证大部分情况下可以有良好的动画效果，而且可以保留目标骨架的一些基本姿势特征，比如驼背、八字脚等，应用得到的话是可以让重定向之后的动画也有这些特种。</p>
+<h2 id="4-骨骼映射"><a href="#4-骨骼映射" class="headerlink" title="4. 骨骼映射"></a>4. 骨骼映射</h2><p>前面的基本原理只解决了骨骼长度等数据不一致的情况下的动画重定向问题，在骨骼数量、名称甚至父子关系等都不一致的情况下，该如何处理呢？</p>
+<p>对于手游应用者来说，答案很简单——尽量不要出现上述的这些情况。虽然有各种技术方案可以一定程度上处理和解决上述问题，但目前工程方面并没有非常完美的效果，而且可能在性能、制作流程复杂度上导致一些问题。</p>
+<blockquote>
+<p>应用动画重定向技术的原则应当是——在项目初期，做好技术预研，确定使用方法，制定从骨骼结构到骨骼名称等相关的美术规范。在中后期引入这一技术的应用，在美术制作不规范的情况下，可能会有较大的额外工作量。</p>
+</blockquote>
+<p>这里，针对不同的问题，给出一些解决方案的思路，某些技术细节实现不进行详细的说明。</p>
+<h3 id="4-1-骨骼名称不一致"><a href="#4-1-骨骼名称不一致" class="headerlink" title="4.1 骨骼名称不一致"></a>4.1 骨骼名称不一致</h3><p>在项目开发中，处于进度的考虑，往往会把不同角色模型和动画的制作外包给不同的外包商，他们对于骨骼的命名可能会不同，比如常见的Biped Head和Bip001 Head。对于CS骨骼，由于在3DS Max中通常美术只会添加不同的前缀，因此可以通过去除前缀的方式进行模糊匹配来做骨骼映射；Unity的做法细节不清楚，但是感觉会根据整个骨架的父子关系和结构来进行映射关系的计算；而对于Bone骨骼，在没有预先定义好类似最大化骨骼这样规范的情况下，非常难通过程序来判断映射关系，可以提供可视化编辑的功能来让美术自己定义他们之间的映射关系。</p>
+<h3 id="4-2-骨骼数量不一致"><a href="#4-2-骨骼数量不一致" class="headerlink" title="4.2 骨骼数量不一致"></a>4.2 骨骼数量不一致</h3><p>我们之前讨论的映射关系，都是一根骨骼对应一根骨骼的简单映射方式。在骨骼数量不一致的又可以分为两种情况来讨论：</p>
+<ol>
+<li>在非CS骨骼或者不重要的部分存在多余的骨骼。如果动画文件的骨架中存在多余骨骼，通常的做法是把这些骨骼忽略掉，而如果目标骨架上存在多余的骨骼，即有些骨骼原始动画中并不存在，这其实没有办法为他生成动画，只需要保证其保留在原始姿势的local space当中，即让其跟着父骨骼移动。比如身上的飘带，如果原始动画中没有，在不使用布料系统等物理方案的情况下，只能让其按照参考姿势中的样子，“僵硬”地跟随角色移动。</li>
+<li><p>在重要的位置存在骨骼不一致。一个常见的例子是胸部的脊柱，不同的角色可能脊柱骨骼数量不同，从2根到4、5根都很常见。这种情况下，简单的一根骨骼映射到一根骨骼就无法做到很好的效果，如下图所示（使用Havok文档中的例子）：</p>
+<p><img src="http://o9hm1ti4o.bkt.clouddn.com/chainmapping1.png" alt="链式映射1"><br>我们想让蓝色小人变到黄色小人当前的姿势，蓝色小人胸部只有一根骨骼，而黄色小人有5根，那么让这一根骨骼使用黄色小人那5根骨骼中的任何一根结果都不理想，可能会出现如下图所示的这种结果：<br><img src="http://o9hm1ti4o.bkt.clouddn.com/chainmapping2.png" alt="链式映射2"><br>这种结果最后渲染出来可能是一个头向前倾斜，但是背依然挺直的角色，它的脖子处的蒙皮被拉得很长。这不是我们想要的效果，如果使用链式映射，可以做到如下图所示的这种较好的结果：<br><img src="http://o9hm1ti4o.bkt.clouddn.com/chainmapping3.png" alt="链式映射3"><br>注意，这里同时修复了头顶上的两根骨骼没有跟随父骨骼移动的问题。</p>
+</li>
+</ol>
+<p>链式映射要做的就是将多根骨骼组成的骨链A和另外一个骨骼中多根骨骼组成的骨链B进行映射，做到整条B骨链的样子和A骨链的样子相近。<br>那么链式映射的基本原理就是：<strong>首先对齐起始链骨骼，然后再保持骨链原有样子的条件下，尽量对齐他们的结束骨骼。</strong>下图给出了一个简单的示例：</p>
+<p> <img src="http://o9hm1ti4o.bkt.clouddn.com/chainmapping4.png" alt="链式映射原理1"><br> 上图把两根骨骼形成的骨骼链接映射到四根骨骼形成的姿势上面。<br> <img src="http://o9hm1ti4o.bkt.clouddn.com/chainmapping5.png" alt="链式映射原理2"><br> 上图把四根骨骼形成的骨骼链接映射到两根骨骼形成的姿势上面。<br>那么如何对齐结束骨骼呢？这里只简单描述Havok引擎中的计算方法，首先算出从骨链的开始骨骼到结束骨骼的向量，比如A1，B1，然后将这两个向量规范化，计算可以将B1转到A1最小旋转，这个旋转使用四元数表示，描述了一个和两个向量都垂直的轴外加一个旋转角度Theta值。这个四元数的计算过程可以使用向量的点积、叉积和半角正玄公式、二倍角正玄公式得到，避免了三角函数计算这种很耗的计算过程。下图给出了一个简单的计算过程，可以看出其使用向量计算来进行效率上的优化。<br><img src="http://o9hm1ti4o.bkt.clouddn.com/chainmapping6.png" alt="简化的旋转计算过程"></p>
+<h3 id="4-3-骨骼父子关系不一致"><a href="#4-3-骨骼父子关系不一致" class="headerlink" title="4.3 骨骼父子关系不一致"></a>4.3 骨骼父子关系不一致</h3><p>当两套骨骼的父子关系都不一致的情况下，其实很难得到正确的映射，简单的不一致可能可以容忍，但是可以想象，把一个人形骨骼的动画映射给四足动物甚至蜘蛛这样的八脚动物，是一件非常难做的事情。</p>
+<p>也因为这样的原因，目前大范围应用的动画重定向，基本还是在人形骨骼上，当然，用相同的算法，把四足的战马动画映射到不同的体型的战马上，也是可以的，基本的原则是骨架尽量具有更多的相似性，重定向的效果也就会更好。</p>
+<h2 id="5-Unity引擎中的应用"><a href="#5-Unity引擎中的应用" class="headerlink" title="5. Unity引擎中的应用"></a>5. Unity引擎中的应用</h2><p>在了解了基本原理之后，我们来看一下动画重定向技术在工程中的应用。笔者之前使用Havok引擎和实现自研引擎中的相应功能有较多的应用经验，但是Unity引擎还是摸索了一下才找到正确的使用方法，<a href="https://docs.unity3d.com/Manual/Retargeting.html" target="_blank" rel="external">官方文档</a>给出了一个简单的应用过程和效果截图，但这个文档讲述的过程比较简单，一些注意事项也没有说得很清楚。</p>
+<h3 id="5-1-基本使用方法"><a href="#5-1-基本使用方法" class="headerlink" title="5.1 基本使用方法"></a>5.1 基本使用方法</h3><p>首先，Unity引擎中动画重定向的实现不是一个直观的方法，而是封装在了Humanoid类型的动画系统里面，也就是必须是人形的骨架、使用Humanoid才可以使用它。Unity没有像前文描述的基本原理那样去定义两套骨架之间的映射关系，而是自己在内部定义一套骨架模板，所有的Avatar骨骼都必须映射到这套模板上才可以由同一个Animator来驱动产生Retargeting之后的动画效果。<br><img src="http://o9hm1ti4o.bkt.clouddn.com/unityretargeting2.png" alt="Unity中的骨架截图"><br>在导入一个模型文件之后，要在这里设置每根骨骼的映射关系，这个映射关系默认会自动建立一套，可以根据需要进行调整，也可以保存和导入配置好的映射关系。</p>
+<p>预览一个重定向之后的动画的效果我没找到非常方便的办法，只能把模型放到Scene中，设置同一个Animator来观察，在动画文件的预览窗口，如果拖拽另外一个模型文件到其中，并不能预览到正确的效果，这跟我之前预想的不太一样。这里简单说明一下整个设置过程，假设我们想让一个female的模型复用一个male的动画：<br>a) 导入male的模型，设置动画类型为Humanoid，设置好Avatar上的骨骼映射关系；<br>b) 导入male的动画文件，设置其类型为Humanoid，讲其Avatar设置为male的avatar；<br>c) 使用male的动画制作一个Animator；<br>d) 导入female的模型文件，设置动画类型为Humanoid，同样设置好Avatar上的骨骼映射关系；<br>e) 可以拖拽一个模型文件到Scene中，然后把它的Animator设置为之前male的动画制作的Animator，即可看到Retargeting之后的效果了。</p>
+<p>这一过程比较简单，Unity引擎为用户隐藏了非常多的实现细节，让用户在进行尽量少的配置的情况下使用动画重定向功能。</p>
+<h3 id="5-2-遇到的问题记录"><a href="#5-2-遇到的问题记录" class="headerlink" title="5.2 遇到的问题记录"></a>5.2 遇到的问题记录</h3><p>在使用过程中，我们遇到了一些问题。<br>a) 第一个是角色的武器或者飘带在使用Humanoid类型的动画系统之后不会移动了，或者移动的位置有了很大的偏差。这时候可以在动画文件的属性设置里，查看Mask下的Transform选项，里面可能存在没有被勾选的骨骼。<br><img src="http://o9hm1ti4o.bkt.clouddn.com/unityretargeting3.png" alt="Unity动画设置"><br>我们目前的做法是把Transform下的所有骨骼对象都勾选上。</p>
+<p>b) 第二个是角色的武器在动作中出现了乱飘的问题，与手部无法紧密地绑定在一起。这是由于我们最初为了方便美术制作武器的动作，把其父骨骼设置给了盆骨这样一根相对稳定的骨骼，但是经过Retargeting计算之后，由于角色身材不同产生了一些偏差导致了这一问题。最终我们还是把武器骨骼的父骨骼设置为手部的骨骼，才解决了这一问题。</p>
+<p>c) 某些角色在重定向之后的动画中表现为脚不贴地，和地面之间有缝隙，原始动画中没有这一问题。如果你理解了动画重定向的原理，那么当原始动画没有问题，而重定向之后的动画存在问题，有两种可能——一种是重定向算法存在问题，另外一种是参考姿势存在问题。我们在没有代码授权的前提下无法查看和修改Unity引擎的重定向实现代码，而且Retargeting功能已经发布了这么久，理论上大部分的Bug都应该已经修复了。。。在Avatar的Configuration界面中，除了设置骨骼的映射关系之外，还可以设置T-Pos的姿势，这里我们可以对参考姿势做微调，如下图所示：<br><img src="http://o9hm1ti4o.bkt.clouddn.com/unityretargeting4.png" alt="Unity中调整参考姿势"></p>
+<p>注意，Unity定义了一个基本的T-Pos姿势范围，当调整的结果超出范围的时候，会出现红色的提示字样。我们的问题是目标角色的脚步骨骼在参考姿势中没有贴地，导致了重定向之后的问题。当你发现重定向之后的动画有些骨骼的姿势很奇怪，或者想让你的目标角色有一些自己的特有个性(比如外八字脚之类的。。。)的时候，可以在这个界面进行调整。</p>
+<h3 id="5-3-性能消耗"><a href="#5-3-性能消耗" class="headerlink" title="5.3 性能消耗"></a>5.3 性能消耗</h3><p>通过前面的原理分析可以看出，即使在有预计算的情况下，与普通的动画计算，Retargeting的过程还是有一定的CPU消耗的，但是这与通常会造成CPU瓶颈的蒙皮、渲染指令提交等相比，其实消耗并不算大。由于Unity与Retargeting相关的还制作了肌肉控制的功能，我担心这部分会有额外的性能消耗，还专门拜托朋友帮忙询问了Unity大中华区的技术人员，得到的答复是——Humanoid形式的动画系统相对于Generic形式的动画系统虽然有一部分额外的性能消耗，但是Unity内部做了比较好的优化，差别不是很大，因此可以放心使用。我们由于必须使用Retargeting的功能，因此也没有对几套动画系统进行非常详尽的性能对照测试，但从以往游戏开发的经验来看，动画重定向这块通常不会在后期的性能Profile过程中被揪出来要求优化。</p>
+<p>总是，虽然动画重定向这套东西已经很熟悉了，但是在Unity中的应用，我们还是摸索的新兵，目前也只是项目的初期，遇到的问题不是很多，如果有朋友有相关的经验可以介绍和分享，还望不吝赐教。</p>
+<h2 id="6-其他"><a href="#6-其他" class="headerlink" title="6. 其他"></a>6. 其他</h2><p>如果你去搜Animation Retargeting相关的论文，会发现学术界有很多更加深入的研究，但是很多算法都不适用于当前的游戏开发。而对于差别非常大的骨架，其实也没有必要非要去用重定向的技术，可能美术单独制作动画资源效果会更好。<br>在之前搜集资料的过程中，读到一篇关于《spore》游戏的论文，觉得比较有意思，<a href="http://slim.chrishecker.com/images/c/cb/Sporeanim-siggraph08.pdf" target="_blank" rel="external">《Real-time Motion Retargeting to Highly Varied User-Created Morphologies》</a>。有兴趣的可以去读一下，《孢子》这款游戏使用的实时动画系统中就有Animation Retargeting技术的应用，结合IK（反向运动学）技术，实现了游戏中自定制角色的动画表现，效果非常不错，玩过的朋友可能会有印象。</p>
+<h2 id="7-结语"><a href="#7-结语" class="headerlink" title="7. 结语"></a>7. 结语</h2><p>动画重定向系统就像很多的游戏引擎组件一样，是一个可能从外部看上去似乎很深奥复杂的功能，但是深入其实现原理，却发现其实非常简单。然而，要把这样一个功能封装成一个易用性很强的引擎模块，让用户可以在不理解原理的情况下去轻松地使用它，却又需要解决很多实际问题，开发各种编辑工具。把一项技术，应用到实际的游戏开发中，就需要这样一个由难入易，再由易到难的过程，这也是做科学研究与做实际工程的区别之一吧。</p>
+<p>希望本文可以给需要用到动画重定向技术的朋友以帮助，也欢迎更多的朋友进行讨论和分享。对于游戏开发这样一项工作来说，永远都有学习不完的知识和技术，而技术的积累和沉淀，是把游戏做得更好的有力保障</p>
+<p>2017年2月2日，于山东菏泽家中</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Retargeting/">Retargeting</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
+	</div>
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-unitydev4" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/20/unitydev4/" class="article-date">
+  	<time datetime="2017-04-19T16:08:40.000Z" itemprop="datePublished">2017-04-20</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/20/unitydev4/">Unity手游开发札记——ToLua#集成内存泄露检查和性能检测工具</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>#0. 前言<br>有段时间没有写博客了，主要原因是事情有点多，一件接着一件，没有太多整理总结的机会。游戏开发逐渐进入铺量制作的忙碌阶段，趣味性没那么多，新鲜感也少了，虽然还是有很多可供记录的点，但大多比较琐碎，难成系统，又或者可能暂时没有结果，不便于分享。<br>这几天花了一些时间在Lua层的内存检查和性能优化与检查方面，对比并尝试集成了一些方案，也踩了一些坑，整理记录在这里，给需要的同学提供参考。</p>
+<p>#1. ToLua#的编译<br>之前的博客有提到过，我们使用的是ToLua#作为Unity引擎和Lua之间的桥接工具，本文记录的集成工具都是在C层进行的，因此要编译自己的ToLua#。<br>ToLua#的源码地址是：<a href="https://github.com/topameng/tolua_runtime" target="_blank" rel="external">https://github.com/topameng/tolua_runtime</a>，编译流程可以参考其wiki文档，不过这部分的过程记录的不太详细，本部分基于wiki文档和自己在Windows以及Mac OS上的编译过程进行一些整理，记录整个过程和遇到的问题如下：</p>
+<p>1) 安装msys2-x86_64-20161025.exe工具，Web地址：<a href="http://msys2.github.io/。" target="_blank" rel="external">http://msys2.github.io/。</a></p>
+<p>2) 为msys2安装gcc，由于原始的下载地址我本地下载非常慢而且出错，建议添加国内的镜像地址：<br>    编辑 /etc/pacman.d/mirrorlist.mingw32 ，在文件开头添加：Server = <a href="http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/i686" target="_blank" rel="external">http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/i686</a><br>    编辑 /etc/pacman.d/mirrorlist.mingw64 ，在文件开头添加：<br>    Server = <a href="http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/x86_64" target="_blank" rel="external">http://mirrors.ustc.edu.cn/msys2/REPOS/MINGW/x86_64</a><br>    编辑 /etc/pacman.d/mirrorlist.msys ，在文件开头添加：<br>    Server = <a href="http://mirrors.ustc.edu.cn/msys2/REPOS/MSYS2/$arch" target="_blank" rel="external">http://mirrors.ustc.edu.cn/msys2/REPOS/MSYS2/$arch</a><br>    然后执行 pacman -Sy 刷新软件包数据即可。</p>
+<p>3) 打开mingw的控制台，输入如下命令进行gcc相关工具的安装：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pacman -S mingw-w64-i686-gcc </span><br><span class="line">pacman -S mingw-w64-x86_64-gcc </span><br><span class="line">pacman -S mingw-w64-i686-make </span><br><span class="line">pacman -S mingw-w64-x86_64-make</span><br><span class="line">pacman -S make</span><br></pre></td></tr></table></figure></p>
+<p>4) 安装完毕之后，执行tolua_runtime下的对应sh文件进行编译。</p>
+<p>5) 编译Android版本需要安装Android SDK，下载Android NDK r10e，并配置Android NDK r10e的目录到PATH环境变量中，配置ANDROID_NDK_PATH环境变量。需要注意几个配置：<br>sh文件里的NDKABI变量，定义了NDK的版本，在msys64\etc\profiles里设置环境变量。</p>
+<p>6) 如果你使用的MinGW-w64 Win64 Shell来编译32位版本的时候会报找不到dll的错误：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: skipping incompatible</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/lib/libm.a when searching for -lm</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: skipping incompatible</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/lib\libm.a when searching for -lm</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: skipping incompatible</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/lib/libm.a when searching for -lm</span><br><span class="line">F:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/6.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: cannot find -lm</span><br></pre></td></tr></table></figure>
+<p>我纠结了半天，按照路径检查发现它用的还是64位的库，在msys64下发现有两个exe，一个叫做mingw64.exe，一个叫做mingw32.exe，使用32位的那个来编译对应的32版本就可以正常编译了。</p>
+<p>7) iOS的编译脚本里设置了  ISDKVER=iPhoneOS10.2.sdk，这里要跟随SDK的版本升级进行更新，否则LuaJit就编译不过，报错信息为”string.h”文件找不到。</p>
+<p>这样，使用不同的编译脚本就可以编译出对应平台的ToLua.dll文件了，拷贝文件覆盖之前Unity的Plugins目录下对应平台的dll文件即可实现ToLua#的更新。</p>
+<blockquote>
+<p>注意： 在覆盖的时候要关闭对应工程的Unity进程，否则会提示dll被占用无法覆盖。</p>
+</blockquote>
+<p>#2. 内存检查工具<br>Unity引擎中有自己的内存检查工具，但是无法查看集成的Lua部分的内存情况。Lua的内存管理由Lua虚拟机负责，Lua 5.1版本的垃圾回收使用的是<strong>双白色标记清除（Mark-sweep）算法</strong>，5.2版本引入了<strong>分代</strong>的策略，具体的实现原理可以参考Lua的源代码。从根本上说，由于有垃圾回收功能的存在，即使存在循环引用的情况，也可以在GC的过程中对不再使用的内存进行释放，不存在严格意义上的“内存泄露”，然而，在游戏运行过程中，无论是C#层的频繁GC还是Lua层的频繁GC，都会导致卡顿的问题，因此要尽量减少内存的无谓分配，从而减少GC的执行频率。当然，由于开发过程中存在C#和Lua的互相引用，可能会出现由于释放过程存在问题导致C#和Lua的对象互相引用然后都GC不掉的情况，这个可能产生更加严重的内存问题。因此，我们需要的内存检查工具最少应当可以针对上述这两种情况进行检查。</p>
+<p>通常进行内存排查的原理比较相似，大都是基于两份内存快照之间的差异来进行人工的对比和分析，对于Lua 5.1来说，大部分的资源都是在_G这样一个变量，因此一次常见的思路是从这个_G开始来遍历出所有的Lua对象，当然，如果不想遗漏数据，更加好的遍历起始应当是从<code>debug.getregistry()</code>开始。编写的代码不太复杂，逐一处理好metatable等相关的内容即可，我尝试了git上一个在Lua层的工具：<a href="https://github.com/radiotail/lua_memleak" target="_blank" rel="external">lua_memkeak</a>，有一些问题，原因是我们自己在Lua层Hook了_G的访问机制来避免不小心写出的全局变量。<em>（多说几句，在Lua中不声明local的变量都会作为全局变量，或者更严格地说，函数中的变量在不声明local的情况下，会被放在函数的env中，只是默认所有函数的env都是_G，所以才造成了不声明local的变量会被放置在_G中的现象。不经意的全局变量可能会导致意料之外的数据修改从而产生难以排查的bug，同事导致部分内存无法被正确地释放，因此我们项目中Lua的所有全局变量必须由一个函数来进行声明。）</em></p>
+<p>因此我更倾向于找一个C层的实现，云风作为Lua的倡导者，在他的博客中提供了一个Lua内存分析工具：<a href="http://blog.codingnow.com/2012/12/lua_snapshot.html" target="_blank" rel="external">Snapshot</a>，对应的Git地址在<a href="https://github.com/cloudwu/lua-snapshot" target="_blank" rel="external">这里</a>。集成到ToLua#中的过程也比较简单，把snapshot.c文件拷贝到ToLua_Runtime目录下，修改一下build脚本，将snapshot.c加入到编译代码中。由于原始的snapshot.c文件目标是编译为dll供Lua虚拟机调用，这里为了方便ToLua#使用，修改了一下最后的接口导出：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">static const struct luaL_Reg snapshot_funcs[] = &#123;</span><br><span class="line">	&#123; "snapshot",	b_snapshot &#125;,</span><br><span class="line">	&#123; NULL, NULL &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">LUALIB_API int luaopen_snapshot(lua_State *L) &#123;</span><br><span class="line">	luaL_checkversion(L);</span><br><span class="line">	#if LUA_VERSION_NUM &lt; 502</span><br><span class="line">		luaL_register(L, "snapshot", snapshot_funcs);</span><br><span class="line">	#else</span><br><span class="line">		luaL_newlib(L, snapshot_funcs);</span><br><span class="line">	#endif</span><br><span class="line">	return 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>按照第一步重新编译ToLua#的dll文件，更新之后，添加对应导出的C#接口，然后在Lua代码中仿照例子编写一个初步的内存查看函数：<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Lua内存记录功能</span></span><br><span class="line"><span class="keyword">local</span> preLuaSnapshot = <span class="keyword">nil</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">snapshotLuaMemory</span><span class="params">(sender, menu, value)</span></span></span><br><span class="line">    <span class="comment">-- 首先统计Lua内存占用的情况</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"GC前, Lua内存为:"</span>, <span class="built_in">collectgarbage</span>(<span class="string">"count"</span>))</span><br><span class="line">    <span class="comment">-- collectgarbage()</span></span><br><span class="line">    <span class="comment">-- print("GC后, Lua内存为:", collectgarbage("count"))</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">local</span> snapshot = <span class="built_in">require</span> <span class="string">"snapshot"</span></span><br><span class="line">    <span class="keyword">local</span> curLuaSnapshot = snapshot.snapshot()</span><br><span class="line">    <span class="keyword">local</span> ret = &#123;&#125;</span><br><span class="line">    <span class="keyword">local</span> count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span> preLuaSnapshot ~= <span class="keyword">nil</span> <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="built_in">pairs</span>(curLuaSnapshot) <span class="keyword">do</span></span><br><span class="line">            <span class="keyword">if</span> preLuaSnapshot[k] == <span class="keyword">nil</span> <span class="keyword">then</span></span><br><span class="line">                count = count + <span class="number">1</span></span><br><span class="line">                ret[k] = v</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> <span class="built_in">pairs</span>(ret) <span class="keyword">do</span></span><br><span class="line">        <span class="built_in">print</span>(k)</span><br><span class="line">        <span class="built_in">print</span>(v)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span> (<span class="string">"Lua snapshot diff object count is "</span> .. count)</span><br><span class="line">    preLuaSnapshot = curLuaSnapshot</span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>使用方法非常简单，制作了一个按钮，触发上述的函数，点击一次会做一个内存快照记录在preLuaSnapShot中，过一段时间，再点击一次按钮，就会在控制台输出内存的diff情况。我们主要针对两块内容进行了初步检查：</p>
+<ol>
+<li>角色在场景内只做移动等简单操作，查看是否有网络、游戏简单的tick逻辑导致的内存分配。这种情况下更多是不进行手动GC，着重检查不必要的内存分配。</li>
+<li>进出战斗之后查看前后快照的diff，检查是否有内存泄露的情况。这种情况下会进行一次手动GC，来回收那些战斗中的临时数据，着重检查由于各种引用关系导致无法被释放的内存对象。</li>
+</ol>
+<p>我们初步发现了之前代码中的一些问题，包括逻辑代码中可以优化的table创建过程，角色移动过程中不断的回调用的Slot对象创建，ToLua#中协程实现的时候每次wait都会创建一个Timer对象等问题，并逐一进行了修复。</p>
+<blockquote>
+<p>注意：在使用云风这个Snapshot工具的时候，它好用的地方是可以查看到对象的类型、变量名称和文件行数，但是可能由于某些对象引用在ToLua#内部或者C#层，抑或是我们自己编写的Lua Class机制，导致一些条目无法像云风博客中说的看到那么多细致的内容，只能看到变量名称和类型，通过全局搜索来判定对象被引用的位置。时间关系没有去查看源代码进行优化，之后有时间可以再仔细看下，如果有朋友知道如何解决也希望不吝赐教~</p>
+</blockquote>
+<p>#3. Profiler的集成</p>
+<p>由于我们放置了大量的逻辑在Lua层，因此也需要对Lua的部分进行Profiler来定位可以进行优化的点。由于内存部分使用了云风的Snapshot，因此自然想看看云风的git上是否有Profiler的工具，果然很快找到了——<a href="https://github.com/cloudwu/luaprofiler" target="_blank" rel="external">LuaProfiler</a>。结构也很简单，就一个profiler.c文件需要集成，因此很开心地下载下来尝试集成到游戏中，但是编译的时候各种错误。</p>
+<p>仔细看了一下代码，原来用到的很多函数都是Lua 5.2和Lua 5.3版本之后才有的函数，尝试翻找snapshot.c中的代码进行一些5.1版本中的实现，花费了半天时间编译通过了但是试用了下会Crash。对于Lua的代码部分不是非常熟悉，因此觉得再在这个地方花费时间可能是个无底洞，因此又想去找找别的方法。</p>
+<p>Lua-users上有专门的<a href="http://lua-users.org/wiki/ProfilingLuaCode" target="_blank" rel="external">Profiling Lua Code</a>专题，第一个是<a href="http://luaprofiler.luaforge.net/" target="_blank" rel="external">LuaProfiler</a>，看了下是支持5.1版本的，但是git上面上次更新是08年的事情了。。。看着有点虚，又搜罗了一圈，其他基于Lua层自己做Profiler的工具感觉对于Lua的运行可能会有比较大的性能影响，因此不太想去尝试。最后还是觉得先试试这个接近10年前的产品。</p>
+<p>集成的过程还算顺利，以win64为例，只需要添加如下部分在sh文件中即可：<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">luaprofiler/stack.c \</span><br><span class="line">luaprofiler/clocks.c \</span><br><span class="line">luaprofiler/function_meter.c \</span><br><span class="line">luaprofiler/core_profiler.c \</span><br><span class="line">luaprofiler/lua50_profiler.c \</span><br></pre></td></tr></table></figure></p>
+<p>编译也较为顺利，但是一旦在游戏中开启之后，ToLua#就会一直报错。对于Lua调用C#的接口，都会报错在这个地方：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public static void CheckArgsCount(IntPtr L, int count)</span><br><span class="line">&#123;</span><br><span class="line">    int c = LuaDLL.lua_gettop(L);</span><br><span class="line"></span><br><span class="line">    if (c != count)</span><br><span class="line">    &#123;</span><br><span class="line">        throw new LuaException(string.Format(&quot;no overload for method takes &apos;&#123;0&#125;&apos; arguments&quot;, c));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>添加断点看了下，这里Lua虚拟机的堆栈中的数据c的值比期望的参数个数count大1。利用一个接口查看了下具体的参数类型和数据，前面的都正确，只是最后多一个而已。一开始的想法是LuaProfiler底层的代码为了方便记录数据，在每次函数调用的地方都添加了一个变量来进行数据存储。于是我想只能通过修改ToLua#的生成代码，让之前严格的参数个数必须相等的判断修改为大于等于就通过的判定，这样可以避免误报LuaException，但是仔细思考之后，觉得这样修改太过于麻烦，让ToLua#生成的代码可能不够严谨，于是想从C层看看有没有修改的可能。</p>
+<p>其实，无论是云风的方式还是这个LuaProfiler，抑或是其他的基于Lua层的性能检查工具，其根本原理是基于lua_sethook这样一个功能。</p>
+<blockquote>
+<p>lua_sethook</p>
+<p>int lua_sethook (lua_State *L, lua_Hook f, int mask, int count);</p>
+<p>Sets the debugging hook function.</p>
+<p>Argument f is the hook function. mask specifies on which events the hook will be called: it is formed by a bitwise or of the constants LUA_MASKCALL, LUA_MASKRET, LUA_MASKLINE, and LUA_MASKCOUNT. The count argument is only meaningful when the mask includes LUA_MASKCOUNT. For each event, the hook is called as explained below:</p>
+<p>The call hook: is called when the interpreter calls a function. The hook is called just after Lua enters the new function, before the function gets its arguments.<br>The return hook: is called when the interpreter returns from a function. The hook is called just before Lua leaves the function. You have no access to the values to be returned by the function.</p>
+<p>The line hook: is called when the interpreter is about to start the execution of a new line of code, or when it jumps back in the code (even to the same line). (This event only happens while Lua is executing a Lua function.)</p>
+<p>The count hook: is called after the interpreter executes every count instructions. (This event only happens while Lua is executing a Lua function.)<br>A hook is disabled by setting mask to zero.</p>
+</blockquote>
+<p>云风的方式是间隔采样的方式，hook LUA_MASKCOUNT，按照一定的间隔进行代码采样，这种方式不太能精确统计每个函数的运行时间，但是对于运行的程序影响较小，从整体消耗百分比的角度分析瓶颈更加准确。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lua_sethook(cL, profiler_hook, LUA_MASKCOUNT, interval);</span><br></pre></td></tr></table></figure>
+<p>LuaProfiler的方式是Hook每个函数的调用和Return逻辑，可以拿到每个函数精确的运行时间，但是这个过程中也就增加了运行消耗。这跟量子力学的理论有那么点相似——你想要观察对象，就会对被观察的对象产生影响。LuaProfiler通过暂停计时的方式让统计的时间更加准确，但是运行时的消耗无法减少。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lua_sethook(L, (lua_Hook)callhook, LUA_MASKCALL | LUA_MASKRET, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>仔细阅读了一下LuaProfiler的代码，对于一些不太了解的函数也逐一进行了搜索，最后发现其在hook的函数处理中逻辑上并不需要在Lua的栈中添加数据，它用于记录时间消耗的数据在自己组织的一块内存的栈结构中。</p>
+<p>最后发现，在callback函数中的lua_gettable操作用来获取profile的状态信息指针，但是把这个数据遗漏在了栈中没有pop出来。我尝试在最后添加了<code>lua_pop (L, 1);</code>操作，编译测试之后没有遇到问题，也解决了ToLua#的报错。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* called by Lua (via the callhook mechanism) */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">callhook</span><span class="params">(lua_State *L, lua_Debug *ar)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> currentline;</span><br><span class="line">  lua_Debug previous_ar;</span><br><span class="line">  lprofP_STATE* S;</span><br><span class="line">  lua_pushlightuserdata(L, &amp;profstate_id);</span><br><span class="line">  lua_gettable(L, LUA_REGISTRYINDEX);</span><br><span class="line">  S = (lprofP_STATE*)lua_touserdata(L, <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (lua_getstack(L, <span class="number">1</span>, &amp;previous_ar) == <span class="number">0</span>) &#123;</span><br><span class="line">    currentline = <span class="number">-1</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    lua_getinfo(L, <span class="string">"l"</span>, &amp;previous_ar);</span><br><span class="line">    currentline = previous_ar.currentline;</span><br><span class="line">  &#125;</span><br><span class="line">      </span><br><span class="line">  lua_getinfo(L, <span class="string">"nS"</span>, ar);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!ar-&gt;event) &#123;</span><br><span class="line">    <span class="comment">/* entering a function */</span></span><br><span class="line">    lprofP_callhookIN(S, (<span class="keyword">char</span> *)ar-&gt;name,</span><br><span class="line">		      (<span class="keyword">char</span> *)ar-&gt;source, ar-&gt;linedefined,</span><br><span class="line">		      currentline);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123; <span class="comment">/* ar-&gt;event == "return" */</span></span><br><span class="line">    lprofP_callhookOUT(S);</span><br><span class="line">  &#125;</span><br><span class="line">  lua_pop (L, <span class="number">1</span>); <span class="comment">/* lua_gettable operation left a value in the lua stack, which makes the tolua param check failed! */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我依然有些担心LuaProfiler的作者将这个信息遗漏在栈内是否是有意为之，只是目前这个工具能够正常工作，我就先当作自己fix了一个不过。</p>
+<blockquote>
+<p>这里说一个插曲，在UWA群中我去问了一下LuaProfiler的情况，有个朋友说他们使用SLua+LuaProfiler没有遇到问题，我还专门有去看了下SLua的Warp函数，感觉其对于参数个数的检查和ToLua差别不大，也是基于相等来做的判定。时间关系，我没有去尝试在SLua中集成来进行测试，有使用的朋友可以自己试下，有结论也期望反馈给我。</p>
+</blockquote>
+<p>集成之后的LuaProfiler的使用可以参考<a href="http://luaprofiler.luaforge.net/manual.html#analyzer" target="_blank" rel="external">Using LuaProfiler</a>的描述，简单来说使用它提供的summary.lua，结合Excel就可以进行比较好的性能分析。使用-v参数可以统计出包括执行次数、平均时长、总时间消耗在内的更多信息。</p>
+<p>#4. 总结</p>
+<p>要在Unity中用好Lua需要注意很多东西，脚本语言本身的性能就比静态语言要差一些，如果写得人不够专业，就可能会造成很多问题，包括内存泄露和性能瓶颈。通过这几个工具的集成，可以让项目组的其他同学方便地进行内存检查和性能测试，越早地抓出问题，就可以让后续编写的代码更好。对于我个人来说，这也是对于Lua进行C扩展的一个入门练习，通过阅读代码和尝试修改bug，了解了一些基本函数的意义和使用方法。</p>
+<p>后续有时间，我会按照项目的需求对这两个工具进行一些改造。目前它们在信息输出方面还有一些缺失，LuaProfiler由于在运行时会记录很多数据从而导致严重影响游戏的帧率，最后统计的结果也没有调用关系的内容，到时候有了产出再在博客中分享大家。</p>
+<p>2017年4月20日于杭州家中</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lua/">Lua</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Unity/">Unity</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
+	</div>
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
   
     <article id="post-unitydev3" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -1037,139 +1277,17 @@
 
 
   
-    <article id="post-pythonadvance1" class="article article-type-post" itemscope itemprop="blogPost">
   
-    <div class="article-meta">
-      <a href="/2016/06/30/pythonadvance1/" class="article-date">
-  	<time datetime="2016-06-30T15:01:26.000Z" itemprop="datePublished">2016-06-30</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/06/30/pythonadvance1/">Python进阶(一)</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这周听了三节Python进阶课程，有十几年的老程序给你讲课传授一门语言的进阶知识，也许这是在大公司才能享受到的福利。虽然接触使用Python也有三四年时间了，但是从课程中还是学习到不少东西，掌握了新技巧的用法，明白了老知识背后的原因。<br>下载了课件，做了笔记，但我还是希望用讲述的方式把它们表现出来，为未来的自己，也给需要的读者。整体以大雄的课程为蓝本，结合我在开发中的一些自己的体会和想法。</p>
-<h2 id="1-写操作对于命名空间的影响"><a href="#1-写操作对于命名空间的影响" class="headerlink" title="1. 写操作对于命名空间的影响"></a>1. 写操作对于命名空间的影响</h2><p>首先来看这样一段代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(processed)</span>:</span></span><br><span class="line">	value = math.pi</span><br><span class="line"></span><br><span class="line">	<span class="comment"># The other programmer add logic here.</span></span><br><span class="line">	<span class="keyword">if</span> processed:</span><br><span class="line">		<span class="keyword">import</span> math</span><br><span class="line">		value = math.sin(value)</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">print</span> value</span><br><span class="line">	</span><br><span class="line">foo(<span class="keyword">True</span>)</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p><strong>思考</strong>：你觉得这段代码有没有什么问题，它的运行结果是什么？</p>
-</blockquote>
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/开发/">开发</a></li></ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a  href="/2016/06/30/pythonadvance1/#more">more >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/06/29/hello-world/" class="article-date">
-  	<time datetime="2016-06-28T17:01:43.000Z" itemprop="datePublished">2016-06-29</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/06/29/hello-world/">讲述者源始</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>从大学时代开始，尝试各种形形色色的博客，从网易博客到新浪博客，再到Lofter、简书，甚至写在纸质本子上的手账，断断续续记录，断断续续写作。有些尘封在过往的时光中，布满灰尘，连自己都不再记得内容和样子；有些依然偶尔去填一些文字或者记上几句感慨，不关心过往路人的喜好或者评价。</p>
-<p>零散的过去分布在网落的各个角落，每一个都是曾经的开始，现在却已无法把它们找回。但坚持记录了两个多月的手账让我看到了一些不同的东西——有时一天几十个字，有时写满一页，都不过是些当天的总结和思考，或者一些抱怨的话，但沉淀下来，就是逝去的生活。</p>
-<p>手账记录给自己，但有些故事想讲给旁人听。于是有了它——<a href="http://www.inarrater.com" target="_blank" rel="external">http://inarrater.com</a>，讲述者。基于Hexo和github搭建的静态独立博客，域名inarrater，我，讲述者。</p>
-<p>讲述和记录的不同，在于讲述在乎倾听者，而记录大多只为自己。所以用讲述者命名博客，希望自己放在这里的文字不只是为了取悦自己。它当然可能包含零散的小说，技术的总结，读书的感悟，人生的思考，无论何种形式，务求言之有物。</p>
-<p>搭建讲述者，花费大约三个晚上的时间，遇到一些技术问题，包括Hexo的框架，主题的选择，域名的购买，DNS的设置等等。博客还有些简陋，但内容的重要程度大于形式，为了搭建它已经推迟了很多计划，所以可能不会再在这个上面花费太多时间和精力，望见谅。</p>
-<p>2016年6月29日凌晨于杭州家中</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/随笔/">随笔</a></li></ul>
-	</div>
-
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    </nav>
   
 </div>
       <footer id="footer">
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2016 董夕
+    		&copy; 2017 董夕
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
